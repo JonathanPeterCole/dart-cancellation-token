@@ -38,6 +38,7 @@ class TimeoutCancellationToken extends CancellationToken {
   /// Cancels all operations with this token.
   ///
   /// An optional [exception] can be provided to give a cancellation reason.
+  @override
   void cancel([Exception exception = const CancelledException()]) {
     _timer?.cancel();
     super.cancel(exception);
@@ -47,6 +48,7 @@ class TimeoutCancellationToken extends CancellationToken {
   ///
   /// Before attaching to a [CancellationToken], you should check if it's already been cancelled
   /// by using [isCancelled].
+  @override
   void attach(Cancellable cancellable) {
     if (!isCancelled && _timer == null) Timer(_duration, _onTimerEnd);
     super.attach(cancellable);

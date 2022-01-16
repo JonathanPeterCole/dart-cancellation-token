@@ -48,7 +48,7 @@ class CancellationToken {
   Exception? _exception;
 
   /// The internal collection of [Cancellable] operations currently listening to this token.
-  List<Cancellable> _attachedCancellables = [];
+  final List<Cancellable> _attachedCancellables = [];
 
   /// Whether or not the token has been cancelled.
   bool get isCancelled => _isCancelled;
@@ -74,7 +74,9 @@ class CancellationToken {
   void cancel([Exception exception = const CancelledException()]) {
     _isCancelled = true;
     _exception = exception;
-    _attachedCancellables.forEach((element) => element.onCancel(exception));
+    for (Cancellable cancellable in _attachedCancellables) {
+      cancellable.onCancel(exception);
+    }
     _attachedCancellables.clear();
   }
 
