@@ -22,6 +22,7 @@ class TimeoutCancellationToken extends CancellationToken {
     bool lazyStart = false,
   }) {
     _duration = duration;
+    _timeoutException = timeoutException;
     if (!lazyStart) _timer = Timer(duration, _onTimerEnd);
   }
 
