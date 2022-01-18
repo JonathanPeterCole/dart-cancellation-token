@@ -13,12 +13,7 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
       : _cancellationToken = cancellationToken,
         _onCancelCallback = onCancel,
         _internalCompleter = Completer<T>() {
-    // Only attach if the cancellation token hasn't already been cancelled
-    if (_cancellationToken.isCancelled) {
-      this.onCancel(_cancellationToken.exception);
-    } else {
-      _cancellationToken.attach(this);
-    }
+    maybeAttach(cancellationToken);
   }
 
   /// The [CancellationToken] that this completer can be cancelled by.
