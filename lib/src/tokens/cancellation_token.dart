@@ -57,7 +57,7 @@ class CancellationToken {
   ///
   /// On debug builds this will throw an exception if the token hasn't been called yet.
   ///
-  /// On release builds a fallback [CancellationException] will be returned to prevent unexpected
+  /// On release builds a fallback [CancelledException] will be returned to prevent unexpected
   /// exceptions.
   Exception get exception {
     assert(

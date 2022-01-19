@@ -1,6 +1,6 @@
 name: cancellation_token
-description: Easy cancellation for tasks using cancellation tokens in Dart.
-version: 0.0.1-dev
+description: Easy async task cancellation for tasks using cancellation tokens in Dart.
+version: 1.0.0
 repository: https://github.com/jonathanpetercole/dart-cancellation-token
 
 environment:
