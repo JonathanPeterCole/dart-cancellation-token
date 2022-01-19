@@ -28,6 +28,5 @@ mixin Cancellable {
   ///
   /// It's not necessary to detach from the token in this method, as cancellation tokens detach from
   /// all cancellables when cancelled.
-  @visibleForOverriding
   void onCancel(Exception cancelException);
 }

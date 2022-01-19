@@ -36,12 +36,14 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
 
   @override
   void complete([FutureOr<T>? value]) {
+    if (isCancelled) return;
     _cancellationToken.detach(this);
     _internalCompleter.complete(value);
   }
 
   @override
   void completeError(Object error, [StackTrace? stackTrace]) {
+    if (isCancelled) return;
     _cancellationToken.detach(this);
     _internalCompleter.completeError(error, stackTrace);
   }
