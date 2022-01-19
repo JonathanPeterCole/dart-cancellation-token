@@ -1,1 +1,121 @@
 # Dart Cancellation Token
+
+A Dart utility package for easy async task cancellation.
+
+## Features
+
+* Cancel futures and clean-up resources (e.g. closing an HttpClient) when a   widget is disposed in Flutter
+* Reuse a single CancellationToken for multiple tasks, and cancel them all with   a single call to `.cancel()`
+* Create your own cancellables that use CancellationTokens with the Cancellable   mixin
+
+
+## Cancellation Tokens
+
+### CancellationToken
+
+The standard CancellationToken can be used to manually cancel tasks. When `.cancel()` is called, all cancellables using the token will be cancelled. By default, async tasks cancelled with a CancellationToken will throw a CancelledException. You can pass a custom exception using `.cancel(CustomException())` to change this.
+
+### TimeoutCancellationToken
+
+To cancel tasks after a certain amount of time, you can use a TimeoutCancellationToken in place of the standard CancellationToken. By default, async tasks will be cancelled with a TimeoutException when the timeout duration ends. You can pass a custom exception by using the `timeoutException` parameter. 
+
+When a TimeoutCancellationToken is created, the timer will begin immediately. To only start the timer when the token is attached to a task, set the `lazyStart` parameter to true.
+
+
+## Usage
+
+### Cancelling Futures
+
+To make an existing future cancellable, you can use the `.asCancellable()` 
+extension.
+
+```dart
+CancellationToken cancellationToken = CancellationToken();
+
+@override
+void initState() {
+  super.initState();
+  loadData();
+}
+
+@override
+void dispose() {
+  // All futures using this token will be cancelled when this widget is disposed
+  cancellationToken.cancel();
+  super.dispose();
+}
+
+Future<void> loadData() async {
+  loading = false;
+  try {
+    // The CancellationToken can be used for multiple tasks
+    someDataA = await getDataA().asCancellable(cancellationToken);
+    someDataB = await getDataB().asCancellable(cancellationToken);
+    setState(() {
+      // ...
+    });
+  } on CancelledException {
+    // Ignore cancellations
+  } catch (e, stackTrace) {
+    setState(() => error = true);
+  }
+}
+```
+
+### Cancellable Completer
+
+The CancellableCompleter class can be used in place of a standard Completer to make it cancellable. This completer implements the base Completer class, so it works as a drop-in replacement.
+
+```dart
+CancellableCompleter<String> completer = CancellableCompleter<String>(
+  cancellationtoken, 
+  onCancel: () {
+    // The optional onCancel callback can be used to clean up resources when the 
+    // token is cancelled
+  }
+);
+
+// Complete with either the result or an error as usual, these will only have an 
+// effect if the completer hasn't already been cancelled
+completer.complete(result);
+complete.completeError(e, stackTrace);
+
+// This future will complete with the result or the cancellation exception, 
+// whichever is first
+return completer.future;
+```
+
+### Custom Cancellables
+
+The Cancellable mixin can be used to make your own cancellables. This might be useful for custom I/O libraries, like a custom HTTP library.
+
+* **DO** detach from the CancellationToken when your async task completes.
+* **DON'T** attach to a CancellationToken that has already been cancelled, instead use the `maybeAttach` method to check if it's already been cancelled and only start your async task if it returns `false.
+* **DON'T** cancel the CancellationToken within a Cancellable, as it may be used for other tasks.
+
+```dart
+class MyCancellable with Cancellable {
+  MyCancellable(this.cancellationToken) {
+    // Call `maybeAttach()` to only attach if the cancellation token hasn't 
+    // already been cancelled
+    if (maybeAttach(this.cancellationToken)) {
+      // Start your async task here
+    }
+  }
+
+  final CancellationToken cancellationToken;
+
+  /// Override `onCancel()` to clean up resources after cancellation.
+  @override
+  void onCancel(Exception cancelException) {
+    // Clean up resources here, like closing an HttpClient
+  }
+  
+  void complete() {
+    // If your async task completes before the token is cancelled, 
+    // detatch from the token
+    _cancellationToken.detach(this);
+  }
+}
+
+```

@@ -1,14 +1,19 @@
 {
   // Set the standard tab size for the project.
   "editor.tabSize": 2,
-
-  // Draw the line guide at 100 characters.
-	"editor.rulers": [ 100 ],
 	
 	// Auto format line length to 100 characters.
 	"dart.lineLength": 100,
+
+	"[markdown]": {
+		// Draw the line guide at 80 characters.
+		"editor.rulers": [ 80 ],
+	},
   
   "[dart]": {
+		// Draw the line guide at 100 characters.
+		"editor.rulers": [ 100 ],
+
 		// Automatically format code on save and during typing of certain characters
 		// (like `;` and `}`).
 		"editor.formatOnSave": true,
