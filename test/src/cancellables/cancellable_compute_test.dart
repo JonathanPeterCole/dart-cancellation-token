@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:cancellation_token/src/cancellables/cancellable_compute.dart';
 import 'package:test/test.dart';
 
 void main() {
