@@ -4,9 +4,10 @@ A Dart utility package for easy async task cancellation.
 
 ## Features
 
-* Cancel futures and clean-up resources (e.g. closing an HttpClient) when a   widget is disposed in Flutter
-* Reuse a single CancellationToken for multiple tasks, and cancel them all with   a single call to `.cancel()`
-* Create your own cancellables that use CancellationTokens with the Cancellable   mixin
+* Cancel futures and clean-up resources (e.g. closing an HttpClient) when a widget is disposed in Flutter
+* Reuse a single CancellationToken for multiple tasks, and cancel them all with a single call to `.cancel()`
+* Cancel isolates with cancellableCompute
+* Create your own cancellables that use CancellationTokens with the Cancellable mixin
 
 
 ## Cancellation Tokens
@@ -46,7 +47,6 @@ void dispose() {
 }
 
 Future<void> loadData() async {
-  loading = false;
   try {
     // The CancellationToken can be used for multiple tasks
     someDataA = await getDataA().asCancellable(cancellationToken);
@@ -83,6 +83,25 @@ complete.completeError(e, stackTrace);
 // This future will complete with the result or the cancellation exception, 
 // whichever is first
 return completer.future;
+```
+
+### Cancellable Isolates
+
+If you need to run an intensive synchronous task, like parsing a large JSON API response, you can use an isolate to avoid blocking the UI thread. With the `cancellableCompute()` function, you can run a static or top level function in an isolate and kill the isolate early using a CancellationToken. This function is based on Flutter's `compute()` method.
+
+When cancellableCompute is cancelled, the isolate will be killed immediately to free up device resources. If your callback function performs I/O operations such as file writes, these may not complete.
+
+```dart
+final ChunkyApiResponse response = await cancellableCompute(
+  _readAndParseJson,
+  jsonString,
+  cancellationToken
+);
+
+static ChunkyApiResponse _readAndParseJson(String json) {
+  final Map<String, dynamic> decodedJson = jsonDecode(json);
+  return ChunkyApiResponse.fromJson(decodedJson);
+}
 ```
 
 ### Custom Cancellables
