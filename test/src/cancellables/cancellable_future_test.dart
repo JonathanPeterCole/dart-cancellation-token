@@ -7,7 +7,8 @@ void main() {
   test('completes with normal value if not cancelled', () {
     final CancellationToken token = CancellationToken();
     final Future<String> testFuture = Future<String>.value('Test value');
-    final CancellableFuture<String> cancellableFuture = CancellableFuture(testFuture, token);
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, token);
 
     expect(cancellableFuture.future, completion(equals('Test value')));
   });
@@ -15,7 +16,8 @@ void main() {
   test('completes with normal exception if not cancelled', () {
     final CancellationToken token = CancellationToken();
     final Future<String> testFuture = Future<String>.error(_TestException());
-    final CancellableFuture<String> cancellableFuture = CancellableFuture(testFuture, token);
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, token);
 
     expect(cancellableFuture.future, throwsA(isA<_TestException>()));
   });
@@ -23,7 +25,8 @@ void main() {
   test('completes with CancelledException if cancelled before attach', () {
     final CancellationToken token = CancellationToken()..cancel();
     final Future<String> testFuture = Future<String>.value('Test value');
-    final CancellableFuture<String> cancellableFuture = CancellableFuture(testFuture, token);
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, token);
 
     expect(cancellableFuture.future, throwsA(isA<CancelledException>()));
   });
@@ -31,7 +34,8 @@ void main() {
   test('completes with CancelledException if cancelled after attach', () {
     final CancellationToken token = CancellationToken();
     final Completer<String> completer = Completer<String>();
-    final CancellableFuture<String> cancellableFuture = CancellableFuture(completer.future, token);
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(completer.future, token);
 
     token.cancel();
 
@@ -42,7 +46,8 @@ void main() {
     test('returns true if the completer was cancelled', () {
       final CancellationToken token = CancellationToken()..cancel();
       final Future<String> testFuture = Future<String>.value('Test value');
-      final CancellableFuture<String> cancellableFuture = CancellableFuture(testFuture, token);
+      final CancellableFuture<String> cancellableFuture =
+          CancellableFuture(testFuture, token);
 
       expect(cancellableFuture.isCancelled, isTrue);
       expect(cancellableFuture.future, throwsException);
@@ -51,7 +56,8 @@ void main() {
     test('returns false if the completer was not cancelled', () {
       final CancellationToken token = CancellationToken();
       final Future<String> testFuture = Future<String>.value('Test value');
-      final CancellableFuture<String> cancellableFuture = CancellableFuture(testFuture, token);
+      final CancellableFuture<String> cancellableFuture =
+          CancellableFuture(testFuture, token);
 
       expect(cancellableFuture.isCancelled, isFalse);
     });
@@ -76,13 +82,15 @@ void main() {
       final CancellationToken token = CancellationToken()..cancel();
       final Future<String> testFuture = Future<String>.value('Test value');
 
-      expect(testFuture.asCancellable(token), throwsA(isA<CancelledException>()));
+      expect(
+          testFuture.asCancellable(token), throwsA(isA<CancelledException>()));
     });
 
     test('completes with CancelledException if cancelled after attach', () {
       final CancellationToken token = CancellationToken();
       final Completer<String> completer = Completer<String>();
-      final Future<String> cancellableFuture = completer.future.asCancellable(token);
+      final Future<String> cancellableFuture =
+          completer.future.asCancellable(token);
 
       token.cancel();
 

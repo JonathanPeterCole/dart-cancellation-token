@@ -3,7 +3,7 @@
   "editor.tabSize": 2,
 	
 	// Auto format line length to 100 characters.
-	"dart.lineLength": 100,
+	"dart.lineLength": 80,
 
 	"[markdown]": {
 		// Draw the line guide at 80 characters.
@@ -12,10 +12,11 @@
   
   "[dart]": {
 		// Draw the line guide at 100 characters.
-		"editor.rulers": [ 100 ],
+		"editor.rulers": [ 80 ],
 
 		// Automatically format code on save and during typing of certain characters
 		// (like `;` and `}`).
+		"editor.defaultFormatter": "Dart-Code.dart-code",
 		"editor.formatOnSave": true,
 		"editor.formatOnType": true,
 

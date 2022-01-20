@@ -6,11 +6,13 @@ import 'package:cancellation_token/src/types.dart';
 
 /// A [Completer] that can be cancelled using a [CancellationToken].
 ///
-/// An optional `onCancel` callback can be provided to clean up resources when the completer is
-/// cancelled.
+/// An optional `onCancel` callback can be provided to clean up resources when
+/// the completer is cancelled.
 class CancellableCompleter<T> with Cancellable implements Completer<T> {
-  CancellableCompleter(CancellationToken cancellationToken, {OnCancelCallback? onCancel})
-      : _cancellationToken = cancellationToken,
+  CancellableCompleter(
+    CancellationToken cancellationToken, {
+    OnCancelCallback? onCancel,
+  })  : _cancellationToken = cancellationToken,
         _onCancelCallback = onCancel,
         _internalCompleter = Completer<T>() {
     maybeAttach(cancellationToken);

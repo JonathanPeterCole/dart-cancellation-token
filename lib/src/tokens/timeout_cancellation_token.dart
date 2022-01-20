@@ -12,8 +12,8 @@ import 'package:cancellation_token/src/tokens/cancellation_token.dart';
 class TimeoutCancellationToken extends CancellationToken {
   /// Creates a [TimeoutCancellationToken] with the given timeout duration.
   ///
-  /// By default a [TimeoutException] will be used when the timeout ends. To throw a custom
-  /// exception, set the [timeoutException] param.
+  /// By default a [TimeoutException] will be used when the timeout ends. To
+  /// throw a custom exception, set the [timeoutException] param.
   ///
   /// If [lazyStart] is true, the timer will only start when it's used.
   TimeoutCancellationToken(
@@ -46,8 +46,8 @@ class TimeoutCancellationToken extends CancellationToken {
 
   /// Attaches a [Cancellable] to this token.
   ///
-  /// Before attaching to a [CancellationToken], you should check if it's already been cancelled
-  /// by using [isCancelled].
+  /// Before attaching to a [CancellationToken], you should check if it's
+  /// already been cancelled by using [isCancelled].
   @override
   void attach(Cancellable cancellable) {
     if (!isCancelled && _timer == null) Timer(_duration, _onTimerEnd);
@@ -59,7 +59,8 @@ class TimeoutCancellationToken extends CancellationToken {
     if (!isCancelled) {
       cancel(_timeoutException ??
           TimeoutException(
-              '$runtimeType timed out after ${_duration.inSeconds} seconds', _duration));
+              '$runtimeType timed out after ${_duration.inSeconds} seconds',
+              _duration));
     }
   }
 }

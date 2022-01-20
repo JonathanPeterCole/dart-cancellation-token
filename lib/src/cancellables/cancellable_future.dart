@@ -4,14 +4,18 @@ import 'package:cancellation_token/src/types.dart';
 
 /// Takes a future and creates a new cancellable future.
 ///
-/// For a shortcut to create a cancellable future, use [CancellableFutureExtension.asCancellable].
+/// For a shortcut to create a cancellable future, use
+/// [CancellableFutureExtension.asCancellable].
 class CancellableFuture<T> {
   CancellableFuture(
     Future<T> future,
     CancellationToken cancellationToken, {
     OnCancelCallback? onCancel,
   })  : _internalFuture = future,
-        _completer = CancellableCompleter(cancellationToken, onCancel: onCancel) {
+        _completer = CancellableCompleter(
+          cancellationToken,
+          onCancel: onCancel,
+        ) {
     _run(future);
   }
 
@@ -34,8 +38,8 @@ class CancellableFuture<T> {
 
   /// The cancellable future.
   ///
-  /// If the [CancellationToken] is cancelled, this future will throw the cancellation exception.
-  /// Otherwise the future will complete as normal.
+  /// If the [CancellationToken] is cancelled, this future will throw the
+  /// cancellation exception. Otherwise the future will complete as normal.
   Future<T> get future => _completer.future;
 
   /// Whether or not the future was cancelled.
@@ -48,6 +52,7 @@ extension CancellableFutureExtension<T> on Future<T> {
     CancellationToken cancellationToken, {
     OnCancelCallback? onCancel,
   }) {
-    return CancellableFuture<T>(this, cancellationToken, onCancel: onCancel).future;
+    return CancellableFuture<T>(this, cancellationToken, onCancel: onCancel)
+        .future;
   }
 }

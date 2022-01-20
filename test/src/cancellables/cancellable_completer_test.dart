@@ -4,7 +4,8 @@ import 'package:test/test.dart';
 void main() {
   test('completes with given normal value if not cancelled', () {
     final CancellationToken token = CancellationToken();
-    final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(token);
 
     completer.complete('Test value');
 
@@ -13,7 +14,8 @@ void main() {
 
   test('completes with given exception if not cancelled', () {
     final CancellationToken token = CancellationToken();
-    final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(token);
 
     completer.completeError(_TestException());
 
@@ -23,14 +25,16 @@ void main() {
   group('completes with a CancelledException', () {
     test('when cancelled before attaching', () {
       final CancellationToken token = CancellationToken()..cancel();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       expect(completer.future, throwsA(isA<CancelledException>()));
     });
 
     test('when cancelled after attaching', () {
       final CancellationToken token = CancellationToken();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       token.cancel();
 
@@ -41,7 +45,8 @@ void main() {
   group('isCancelled', () {
     test('returns true if the completer was cancelled', () {
       final CancellationToken token = CancellationToken()..cancel();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       expect(completer.isCancelled, isTrue);
       expect(completer.future, throwsException);
@@ -49,7 +54,8 @@ void main() {
 
     test('returns false if the completer was not cancelled', () {
       final CancellationToken token = CancellationToken();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       expect(completer.isCancelled, isFalse);
     });
@@ -58,7 +64,8 @@ void main() {
   group('isCompleted', () {
     test('returns true if completed with a value', () {
       final CancellationToken token = CancellationToken();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       completer.complete('Test value');
 
@@ -67,7 +74,8 @@ void main() {
 
     test('returns true if completed with an error', () {
       final CancellationToken token = CancellationToken();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       completer.completeError(_TestException());
 
@@ -77,7 +85,8 @@ void main() {
 
     test('returns true if the completer was cancelled', () {
       final CancellationToken token = CancellationToken()..cancel();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       expect(completer.isCompleted, isTrue);
       expect(completer.future, throwsException);
@@ -85,7 +94,8 @@ void main() {
 
     test('returns false if not completed', () {
       final CancellationToken token = CancellationToken();
-      final CancellableCompleter<String> completer = CancellableCompleter<String>(token);
+      final CancellableCompleter<String> completer =
+          CancellableCompleter<String>(token);
 
       expect(completer.isCompleted, isFalse);
     });

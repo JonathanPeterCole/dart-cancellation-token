@@ -38,8 +38,8 @@ import 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
 ///
 /// See also:
 ///
-///  * [TimeoutCancellationToken], a [CancellationToken] that automatically cancels after a given
-///    duration.
+///  * [TimeoutCancellationToken], a [CancellationToken] that automatically
+///    cancels after a given duration.
 class CancellationToken {
   /// Whether or not this token has been cancelled.
   bool _isCancelled = false;
@@ -47,7 +47,8 @@ class CancellationToken {
   /// The exception given when this token was cancelled.
   Exception? _exception;
 
-  /// The internal collection of [Cancellable] operations currently listening to this token.
+  /// The internal collection of [Cancellable] operations currently listening to
+  /// this token.
   final List<Cancellable> _attachedCancellables = [];
 
   /// Whether or not the token has been cancelled.
@@ -55,15 +56,16 @@ class CancellationToken {
 
   /// The exception given when the token was cancelled.
   ///
-  /// On debug builds this will throw an exception if the token hasn't been called yet.
+  /// On debug builds this will throw an exception if the token hasn't been
+  /// called yet.
   ///
-  /// On release builds a fallback [CancelledException] will be returned to prevent unexpected
-  /// exceptions.
+  /// On release builds a fallback [CancelledException] will be returned to
+  /// prevent unexpected exceptions.
   Exception get exception {
     assert(
       isCancelled,
-      'Attempted to get the cancellation exception of a $runtimeType that hasn\'t been cancelled '
-      'yet.',
+      'Attempted to get the cancellation exception of a $runtimeType that '
+      'hasn\'t been cancelled yet.',
     );
     return _exception ?? CancelledException();
   }
@@ -82,8 +84,8 @@ class CancellationToken {
 
   /// Attaches a [Cancellable] to this token.
   ///
-  /// Before attaching to a [CancellationToken], you should check if it's already been cancelled
-  /// by using [isCancelled].
+  /// Before attaching to a [CancellationToken], you should check if it's
+  ///  already been cancelled by using [isCancelled].
   void attach(Cancellable cancellable) {
     assert(
       !isCancelled,
@@ -97,7 +99,8 @@ class CancellationToken {
 
   /// Detaches a [Cancellable] from this token.
   ///
-  /// This should be called when a [Cancellable] completes to prevent memory leaks.
+  /// This should be called when a [Cancellable] completes to prevent memory
+  /// leaks.
   void detach(Cancellable cancellable) {
     _attachedCancellables.remove(cancellable);
   }

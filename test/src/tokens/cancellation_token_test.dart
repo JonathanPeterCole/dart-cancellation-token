@@ -26,7 +26,8 @@ void main() {
     final CancellationToken token = CancellationToken();
 
     int cancelledCount = 0;
-    final _TestCancellable testCancellable = _TestCancellable((exception) => cancelledCount++);
+    final _TestCancellable testCancellable =
+        _TestCancellable((exception) => cancelledCount++);
 
     token
       ..attach(testCancellable)
@@ -40,7 +41,8 @@ void main() {
     final CancellationToken token = CancellationToken();
 
     bool cancelled = false;
-    final _TestCancellable testCancellable = _TestCancellable((exception) => cancelled = false);
+    final _TestCancellable testCancellable =
+        _TestCancellable((exception) => cancelled = false);
 
     token
       ..attach(testCancellable)
@@ -83,7 +85,8 @@ void main() {
 
     test('if a custom exception was provided', () {
       final Exception testException = Exception('Test exception');
-      final CancellationToken token = CancellationToken()..cancel(testException);
+      final CancellationToken token = CancellationToken()
+        ..cancel(testException);
 
       expect(token.exception, equals(testException));
     });

@@ -6,7 +6,8 @@ import 'package:test/test.dart';
 
 void main() {
   test('cancels all attached cancellables on manual cancellation', () {
-    final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+    final TimeoutCancellationToken token =
+        TimeoutCancellationToken(Duration(minutes: 1));
     final Exception testException = Exception('Test exception');
 
     Exception? cancelledWithA;
@@ -26,10 +27,12 @@ void main() {
   });
 
   test('detached cancellables are not cancelled', () {
-    final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+    final TimeoutCancellationToken token =
+        TimeoutCancellationToken(Duration(minutes: 1));
 
     bool cancelled = false;
-    final _TestCancellable testCancellable = _TestCancellable((exception) => cancelled = false);
+    final _TestCancellable testCancellable =
+        _TestCancellable((exception) => cancelled = false);
 
     token
       ..attach(testCancellable)
@@ -42,7 +45,8 @@ void main() {
   group('cancels all attached cancellables after the timeout period', () {
     test('with the default TimeoutException', () {
       fakeAsync((async) {
-        final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+        final TimeoutCancellationToken token =
+            TimeoutCancellationToken(Duration(minutes: 1));
 
         Exception? cancelledWithA;
         final _TestCancellable testCancellableA =
@@ -97,15 +101,18 @@ void main() {
     test('with a lazy start', () {
       fakeAsync((async) {
         final Exception testException = Exception('Test exception');
-        final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1),
-            timeoutException: testException, lazyStart: true);
+        final TimeoutCancellationToken token = TimeoutCancellationToken(
+            Duration(minutes: 1),
+            timeoutException: testException,
+            lazyStart: true);
 
         async.elapse(Duration(minutes: 1));
 
         expect(token.isCancelled, isFalse);
 
         bool cancelled = false;
-        final _TestCancellable testCancellable = _TestCancellable((exception) => cancelled = true);
+        final _TestCancellable testCancellable =
+            _TestCancellable((exception) => cancelled = true);
         token.attach(testCancellable);
 
         async.elapse(Duration(minutes: 1));
@@ -118,10 +125,12 @@ void main() {
 
   group('attached cancellables are only cancelled once', () {
     test('after double manual cancellation', () {
-      final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1));
 
       int cancelledCount = 0;
-      final _TestCancellable testCancellable = _TestCancellable((exception) => cancelledCount++);
+      final _TestCancellable testCancellable =
+          _TestCancellable((exception) => cancelledCount++);
 
       token
         ..attach(testCancellable)
@@ -133,10 +142,12 @@ void main() {
 
     test('after manual cancellation followed by the timeout', () {
       fakeAsync((async) {
-        final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+        final TimeoutCancellationToken token =
+            TimeoutCancellationToken(Duration(minutes: 1));
 
         int cancelledCount = 0;
-        final _TestCancellable testCancellable = _TestCancellable((exception) => cancelledCount++);
+        final _TestCancellable testCancellable =
+            _TestCancellable((exception) => cancelledCount++);
 
         token
           ..attach(testCancellable)
@@ -150,10 +161,12 @@ void main() {
 
     test('after the timeout followed by manual cancellation', () {
       fakeAsync((async) {
-        final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+        final TimeoutCancellationToken token =
+            TimeoutCancellationToken(Duration(minutes: 1));
 
         int cancelledCount = 0;
-        final _TestCancellable testCancellable = _TestCancellable((exception) => cancelledCount++);
+        final _TestCancellable testCancellable =
+            _TestCancellable((exception) => cancelledCount++);
 
         token.attach(testCancellable);
 
@@ -168,7 +181,8 @@ void main() {
 
   group('isCancelled getter returns true after being cancelled', () {
     test('with no attached cancellables', () {
-      final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1));
 
       expect(token.isCancelled, isFalse);
 
@@ -178,7 +192,8 @@ void main() {
     });
 
     test('with attached cancellables', () {
-      final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1));
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1));
       final _TestCancellable testCancellable = _TestCancellable((_) {});
       token.attach(testCancellable);
 
@@ -192,16 +207,16 @@ void main() {
 
   group('exception getter returns the cancellation exception', () {
     test('if no exception was provided', () {
-      final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1))
-        ..cancel();
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1))..cancel();
 
       expect(token.exception, TypeMatcher<CancelledException>());
     });
 
     test('if a custom exception was provided', () {
       final Exception testException = Exception('Test exception');
-      final TimeoutCancellationToken token = TimeoutCancellationToken(Duration(minutes: 1))
-        ..cancel(testException);
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1))..cancel(testException);
 
       expect(token.exception, equals(testException));
     });
