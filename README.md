@@ -2,6 +2,9 @@
 
 A Dart utility package for easy async task cancellation.
 
+**For Dart versions below 2.15.0, use version 1.0.0 of this package.**
+
+
 ## Features
 
 * Cancel futures and clean-up resources (e.g. closing an HttpClient) when a widget is disposed in Flutter
@@ -90,6 +93,8 @@ return completer.future;
 If you need to run an intensive synchronous task, like parsing a large JSON API response, you can use an isolate to avoid blocking the UI thread. With the `cancellableCompute()` function, you can run a static or top level function in an isolate and kill the isolate early using a CancellationToken. This function is based on Flutter's `compute()` method.
 
 When cancellableCompute is cancelled, the isolate will be killed immediately to free up device resources. If your callback function performs I/O operations such as file writes, these may not complete.
+
+Isolates aren't supported when building for web. As a fallback, cancellableCompute will return a future that completes with either the cancellation exception or the result of the callback, depending on whether or not the CancellationToken was already cancelled when it was called. 
 
 ```dart
 final ChunkyApiResponse response = await cancellableCompute(
