@@ -13,6 +13,14 @@ void main() {
     expect(cancellableFuture.future, completion(equals('Test value')));
   });
 
+  test('completes with normal value if cancellation token is null', () {
+    final Future<String> testFuture = Future<String>.value('Test value');
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, null);
+
+    expect(cancellableFuture.future, completion(equals('Test value')));
+  });
+
   test('completes with normal exception if not cancelled', () {
     final CancellationToken token = CancellationToken();
     final Future<String> testFuture = Future<String>.error(_TestException());
@@ -40,6 +48,14 @@ void main() {
     token.cancel();
 
     expect(cancellableFuture.future, throwsA(isA<CancelledException>()));
+  });
+
+  test('completes with normal exception if cancellation token is null', () {
+    final Future<String> testFuture = Future<String>.error(_TestException());
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, null);
+
+    expect(cancellableFuture.future, throwsA(isA<_TestException>()));
   });
 
   group('isCancelled', () {

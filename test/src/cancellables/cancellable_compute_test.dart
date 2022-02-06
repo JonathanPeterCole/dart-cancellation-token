@@ -14,6 +14,13 @@ void main() {
     );
   });
 
+  test('completes with normal result if cancellation token is null', () {
+    expect(
+      cancellableCompute(_successIsolateTest, 'Test string', null),
+      completion(equals('Test string')),
+    );
+  });
+
   test('completes with exception if not cancelled and isolate callback throws',
       () async {
     final CancellationToken token = CancellationToken();
@@ -21,6 +28,17 @@ void main() {
 
     expect(
       cancellableCompute(_errorIsolateTest, testException, token),
+      throwsA(isA<Exception>()),
+    );
+  });
+
+  test(
+      'completes with exception if cancellation token is null and isolate '
+      'callback throws', () async {
+    final Exception testException = _TestException();
+
+    expect(
+      cancellableCompute(_errorIsolateTest, testException, null),
       throwsA(isA<Exception>()),
     );
   });

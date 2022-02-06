@@ -12,10 +12,28 @@ void main() {
     expect(completer.future, completion(equals('Test value')));
   });
 
+  test('completes with given normal value if cancellation token is null', () {
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(null);
+
+    completer.complete('Test value');
+
+    expect(completer.future, completion(equals('Test value')));
+  });
+
   test('completes with given exception if not cancelled', () {
     final CancellationToken token = CancellationToken();
     final CancellableCompleter<String> completer =
         CancellableCompleter<String>(token);
+
+    completer.completeError(_TestException());
+
+    expect(completer.future, throwsA(isA<_TestException>()));
+  });
+
+  test('completes with given exception if cancellation token is null', () {
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(null);
 
     completer.completeError(_TestException());
 
