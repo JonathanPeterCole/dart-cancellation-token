@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Added support for nullable CancellationTokens, allowing functions/classes to be made cancellable without breaking existing implementations.
+
 ## 1.1.1
 
 * Bugfix: Add missing cancellableCompute export
