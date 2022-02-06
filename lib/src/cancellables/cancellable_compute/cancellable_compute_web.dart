@@ -6,12 +6,12 @@ import 'package:cancellation_token/cancellation_token.dart';
 Future<R> cancellableComputeImpl<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message,
-  CancellationToken cancellationToken, {
+  CancellationToken? cancellationToken, {
   String? debugLabel,
 }) async {
   await null;
-  if (cancellationToken.isCancelled) {
-    throw cancellationToken.exception;
+  if (cancellationToken?.isCancelled ?? false) {
+    throw cancellationToken!.exception;
   } else {
     return callback(message);
   }

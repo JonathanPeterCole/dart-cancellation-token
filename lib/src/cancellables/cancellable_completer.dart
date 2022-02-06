@@ -10,7 +10,7 @@ import 'package:cancellation_token/src/types.dart';
 /// the completer is cancelled.
 class CancellableCompleter<T> with Cancellable implements Completer<T> {
   CancellableCompleter(
-    CancellationToken cancellationToken, {
+    CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
   })  : _cancellationToken = cancellationToken,
         _onCancelCallback = onCancel,
@@ -19,7 +19,7 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   }
 
   /// The [CancellationToken] that this completer can be cancelled by.
-  final CancellationToken _cancellationToken;
+  final CancellationToken? _cancellationToken;
 
   /// The optional cleanup callback that should be called when cancelled.
   final OnCancelCallback? _onCancelCallback;
@@ -28,7 +28,7 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   final Completer<T> _internalCompleter;
 
   /// Whether or not the completer was cancelled.
-  bool get isCancelled => _cancellationToken.isCancelled;
+  bool get isCancelled => _cancellationToken?.isCancelled ?? false;
 
   @override
   bool get isCompleted => _internalCompleter.isCompleted;
@@ -39,14 +39,14 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   @override
   void complete([FutureOr<T>? value]) {
     if (isCancelled) return;
-    _cancellationToken.detach(this);
+    _cancellationToken?.detach(this);
     _internalCompleter.complete(value);
   }
 
   @override
   void completeError(Object error, [StackTrace? stackTrace]) {
     if (isCancelled) return;
-    _cancellationToken.detach(this);
+    _cancellationToken?.detach(this);
     _internalCompleter.completeError(error, stackTrace);
   }
 

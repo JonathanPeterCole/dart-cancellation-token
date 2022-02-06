@@ -17,7 +17,7 @@ import 'cancellable_compute/cancellable_compute_stub.dart'
 Future<R> cancellableCompute<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message,
-  CancellationToken cancellationToken, {
+  CancellationToken? cancellationToken, {
   String? debugLabel,
 }) =>
     cancellableComputeImpl(callback, message, cancellationToken);

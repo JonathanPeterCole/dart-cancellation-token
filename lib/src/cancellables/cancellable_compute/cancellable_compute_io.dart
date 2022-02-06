@@ -11,7 +11,7 @@ const bool _releaseMode = bool.fromEnvironment('dart.vm.product');
 Future<R> cancellableComputeImpl<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message,
-  CancellationToken cancellationToken, {
+  CancellationToken? cancellationToken, {
   String? debugLabel,
 }) =>
     _CancellableCompute(
@@ -35,7 +35,7 @@ class _CancellableCompute<Q, R> with Cancellable {
     startIsolate();
   }
 
-  final CancellationToken cancellationToken;
+  final CancellationToken? cancellationToken;
   final ComputeCallback<Q, R> callback;
   final Q message;
   final String debugLabel;
@@ -79,7 +79,7 @@ class _CancellableCompute<Q, R> with Cancellable {
     isolateRunning = true;
     // Kill the isolate immediately if the token was cancelled whilst the
     // isolate was spawning
-    if (cancellationToken.isCancelled) return killIsolate();
+    if (cancellationToken?.isCancelled ?? false) return killIsolate();
     // Listen to the ports
     resultPort!.listen(onResult);
     errorPort!.listen(onError);
@@ -113,7 +113,7 @@ class _CancellableCompute<Q, R> with Cancellable {
           .completeError(Exception('Isolate exited without result or error.'));
     }
     isolateRunning = false;
-    cancellationToken.detach(this);
+    cancellationToken?.detach(this);
     closePorts();
   }
 

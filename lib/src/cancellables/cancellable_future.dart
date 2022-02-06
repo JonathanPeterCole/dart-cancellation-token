@@ -9,7 +9,7 @@ import 'package:cancellation_token/src/types.dart';
 class CancellableFuture<T> {
   CancellableFuture(
     Future<T> future,
-    CancellationToken cancellationToken, {
+    CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
   })  : _internalFuture = future,
         _completer = CancellableCompleter(
@@ -49,7 +49,7 @@ class CancellableFuture<T> {
 extension CancellableFutureExtension<T> on Future<T> {
   /// Converts the future to a cancellable future.
   Future<T> asCancellable(
-    CancellationToken cancellationToken, {
+    CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
   }) {
     return CancellableFuture<T>(this, cancellationToken, onCancel: onCancel)

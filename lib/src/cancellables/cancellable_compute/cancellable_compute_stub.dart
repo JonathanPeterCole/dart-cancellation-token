@@ -7,7 +7,7 @@ import 'package:cancellation_token/cancellation_token.dart';
 Future<R> cancellableComputeImpl<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message,
-  CancellationToken cancellationToken, {
+  CancellationToken? cancellationToken, {
   String? debugLabel,
 }) =>
     throw UnsupportedError(

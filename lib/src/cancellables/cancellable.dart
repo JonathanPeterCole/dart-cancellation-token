@@ -5,23 +5,29 @@ import 'package:meta/meta.dart';
 ///
 /// This does not handle attaching to and detatching from the token.
 ///
-/// Classes using this mixin should call `isCancelled` and `attach(this)` on the
-/// token when they're created, and call `detatch(this)` on the token once
+/// Classes using this mixin should call `maybeAttach(token)` to attach to the
+/// token when they're created, and call `token.detatch(this)` on the token once
 /// complete to prevent memory leaks.
+///
+/// Cancellables can have nullable tokens to make them optionally cancellable.
+/// In these cases, you can call `maybeAttach(token)` as usual to attach to the
+/// token if there is one, and use `token?.detach(this)` to detach when done.
 mixin Cancellable {
   /// Attaches to the [CancellationToken] only if it hasn't already been
   /// cancelled. If the token has already been cancelled, onCancel is called
   /// instead.
   ///
-  /// Returns `true` if attached to the token.
-  /// Returns `false` if the token has already been cancelled.
+  /// Returns `true` if the token is null or hasn't been cancelled yet, so the
+  /// async task should continue.
+  /// Returns `false` if the token has already been cancelled and the async task
+  /// should not continue.
   @protected
-  bool maybeAttach(CancellationToken token) {
-    if (token.isCancelled) {
-      onCancel(token.exception);
+  bool maybeAttach(CancellationToken? token) {
+    if (token?.isCancelled ?? false) {
+      onCancel(token!.exception);
       return false;
     } else {
-      token.attach(this);
+      token?.attach(this);
       return true;
     }
   }
