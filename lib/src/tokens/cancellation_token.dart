@@ -67,7 +67,7 @@ class CancellationToken {
       'Attempted to get the cancellation exception of a $runtimeType that '
       'hasn\'t been cancelled yet.',
     );
-    return _exception ?? CancelledException();
+    return _exception ??= CancelledException();
   }
 
   /// Cancels all operations with this token.
