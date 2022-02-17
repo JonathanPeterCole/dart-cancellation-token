@@ -58,9 +58,9 @@ void main() {
       final Future<String> result =
           cancellableCompute(_infiniteLoopIsolateTest, 'Test string', token);
 
-      token.cancel();
-
       expect(result, throwsA(isA<CancelledException>()));
+
+      token.cancel();
     });
   });
 }

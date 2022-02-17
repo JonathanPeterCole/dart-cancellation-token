@@ -12,7 +12,7 @@ class CancellableFuture<T> {
     CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
   })  : _internalFuture = future,
-        _completer = CancellableCompleter(
+        _completer = CancellableCompleter.sync(
           cancellationToken,
           onCancel: onCancel,
         ) {

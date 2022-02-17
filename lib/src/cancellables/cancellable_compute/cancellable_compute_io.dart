@@ -39,7 +39,7 @@ class _CancellableCompute<Q, R> with Cancellable {
   final ComputeCallback<Q, R> callback;
   final Q message;
   final String debugLabel;
-  final Completer<R> completer = Completer<R>();
+  final Completer<R> completer = Completer<R>.sync();
 
   bool isolateRunning = false;
   Flow? flow;

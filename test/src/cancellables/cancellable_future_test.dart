@@ -45,9 +45,9 @@ void main() {
     final CancellableFuture<String> cancellableFuture =
         CancellableFuture(completer.future, token);
 
-    token.cancel();
-
     expect(cancellableFuture.future, throwsA(isA<CancelledException>()));
+
+    token.cancel();
   });
 
   test('completes with normal exception if cancellation token is null', () {
@@ -108,9 +108,9 @@ void main() {
       final Future<String> cancellableFuture =
           completer.future.asCancellable(token);
 
-      token.cancel();
-
       expect(cancellableFuture, throwsA(isA<CancelledException>()));
+
+      token.cancel();
     });
   });
 }

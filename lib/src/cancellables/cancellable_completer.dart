@@ -18,6 +18,17 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
     maybeAttach(cancellationToken);
   }
 
+  /// Creates a CancellableCompleter that completes synchronously, similar to
+  /// `Completer.sync()`.
+  CancellableCompleter.sync(
+    CancellationToken? cancellationToken, {
+    OnCancelCallback? onCancel,
+  })  : _cancellationToken = cancellationToken,
+        _onCancelCallback = onCancel,
+        _internalCompleter = Completer<T>.sync() {
+    maybeAttach(cancellationToken);
+  }
+
   /// The [CancellationToken] that this completer can be cancelled by.
   final CancellationToken? _cancellationToken;
 
