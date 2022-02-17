@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:meta/meta.dart';
 
@@ -24,7 +26,9 @@ mixin Cancellable {
   @protected
   bool maybeAttach(CancellationToken? token) {
     if (token?.isCancelled ?? false) {
-      onCancel(token!.exception);
+      // Schedule the cancellation as a microtask to prevent Futures completing
+      // before error handlers are registered
+      scheduleMicrotask(() => onCancel(token!.exception));
       return false;
     } else {
       token?.attach(this);

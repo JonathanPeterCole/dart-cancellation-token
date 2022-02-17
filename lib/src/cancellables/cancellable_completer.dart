@@ -20,6 +20,10 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
 
   /// Creates a CancellableCompleter that completes synchronously, similar to
   /// `Completer.sync()`.
+  ///
+  /// To prevent the future completing with an error before error handlers are
+  /// registered, this will not complete synchronously if it's created with a
+  /// CancellationToken that's already been cancelled.
   CancellableCompleter.sync(
     CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
