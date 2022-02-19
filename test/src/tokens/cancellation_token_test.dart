@@ -76,19 +76,27 @@ void main() {
     });
   });
 
-  group('exception getter returns the cancellation exception', () {
-    test('if no exception was provided', () {
-      final CancellationToken token = CancellationToken()..cancel();
+  group('exception getter', () {
+    group('returns the cancellation exception', () {
+      test('if no exception was provided', () {
+        final CancellationToken token = CancellationToken()..cancel();
 
-      expect(token.exception, TypeMatcher<CancelledException>());
+        expect(token.exception, TypeMatcher<CancelledException>());
+      });
+
+      test('if a custom exception was provided', () {
+        final Exception testException = Exception('Test exception');
+        final CancellationToken token = CancellationToken()
+          ..cancel(testException);
+
+        expect(token.exception, equals(testException));
+      });
     });
 
-    test('if a custom exception was provided', () {
-      final Exception testException = Exception('Test exception');
-      final CancellationToken token = CancellationToken()
-        ..cancel(testException);
+    test('returns the same exception instance every time', () {
+      final CancellationToken token = CancellationToken()..cancel();
 
-      expect(token.exception, equals(testException));
+      expect(token.exception, equals(token.exception));
     });
   });
 }

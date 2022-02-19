@@ -99,7 +99,9 @@ void main() {
       final Future<String> testFuture = Future<String>.value('Test value');
 
       expect(
-          testFuture.asCancellable(token), throwsA(isA<CancelledException>()));
+        testFuture.asCancellable(token),
+        throwsA(isA<CancelledException>()),
+      );
     });
 
     test('completes with CancelledException if cancelled after attach', () {
