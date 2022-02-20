@@ -28,7 +28,8 @@ mixin Cancellable {
     if (token?.isCancelled ?? false) {
       // Schedule the cancellation as a microtask to prevent Futures completing
       // before error handlers are registered
-      scheduleMicrotask(() => onCancel(token!.exception));
+      final StackTrace trace = StackTrace.current;
+      scheduleMicrotask(() => onCancel(token!.exception, trace));
       return false;
     } else {
       token?.attach(this);
@@ -40,5 +41,5 @@ mixin Cancellable {
   ///
   /// It's not necessary to detach from the token in this method, as
   /// cancellation tokens detach from all cancellables when cancelled.
-  void onCancel(Exception cancelException);
+  void onCancel(Exception cancelException, [StackTrace? trace]);
 }

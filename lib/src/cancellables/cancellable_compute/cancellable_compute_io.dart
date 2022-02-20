@@ -109,8 +109,9 @@ class _CancellableCompute<Q, R> with Cancellable {
   /// Handles the isolate exiting and cleans up.
   void onExit(dynamic exitData) {
     if (!completer.isCompleted) {
-      completer
-          .completeError(Exception('Isolate exited without result or error.'));
+      completer.completeError(
+        Exception('Isolate exited without result or error.'),
+      );
     }
     isolateRunning = false;
     cancellationToken?.detach(this);
@@ -138,8 +139,10 @@ class _CancellableCompute<Q, R> with Cancellable {
 
   /// Completes early and kills the isolate.
   @override
-  void onCancel(Exception cancelException) {
-    if (!completer.isCompleted) completer.completeError(cancelException);
+  void onCancel(Exception cancelException, [StackTrace? trace]) {
+    if (!completer.isCompleted) {
+      completer.completeError(cancelException, trace ?? StackTrace.current);
+    }
     if (isolateRunning) killIsolate();
   }
 }

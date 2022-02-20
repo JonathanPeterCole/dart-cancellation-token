@@ -108,5 +108,6 @@ class _TestCancellable with Cancellable {
   final Function(Exception cancelException) onCancelCallback;
 
   @override
-  void onCancel(Exception cancelException) => onCancelCallback(cancelException);
+  void onCancel(Exception cancelException, [StackTrace? trace]) =>
+      onCancelCallback(cancelException);
 }
