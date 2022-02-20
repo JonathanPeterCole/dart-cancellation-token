@@ -74,6 +74,7 @@ class CancellationToken {
   ///
   /// An optional [exception] can be provided to give a cancellation reason.
   void cancel([Exception exception = const CancelledException()]) {
+    if (_isCancelled) return;
     _isCancelled = true;
     _exception = exception;
     for (Cancellable cancellable in _attachedCancellables) {
