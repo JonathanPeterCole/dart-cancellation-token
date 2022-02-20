@@ -101,8 +101,12 @@ class CancellationToken {
   /// Detaches a [Cancellable] from this token.
   ///
   /// This should be called when a [Cancellable] completes to prevent memory
-  /// leaks.
+  /// leaks. You should not call this inside a Cancellable's `onCancel` method,
+  /// as attached Cancellables are detached automatically when a token is
+  /// cancelled.
   void detach(Cancellable cancellable) {
-    _attachedCancellables.remove(cancellable);
+    // Prevent modifications to the list whilst it's being iterated on by
+    // ignoring detach calls if the token's been cancelled
+    if (!isCancelled) _attachedCancellables.remove(cancellable);
   }
 }
