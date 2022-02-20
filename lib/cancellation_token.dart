@@ -13,5 +13,8 @@ export 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
 export 'package:cancellation_token/src/tokens/cancellation_token.dart';
 export 'package:cancellation_token/src/tokens/timeout_cancellation_token.dart';
 
+// Utils
+export 'package:cancellation_token/src/utils/ignore_cancellation.dart';
+
 // Types
 export 'package:cancellation_token/src/types.dart';
