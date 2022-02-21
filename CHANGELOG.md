@@ -1,3 +1,7 @@
+## 1.3.1
+
+* Bugfix: Fix exception if a Cancellable calls `cancellationToken.detach(this)` in its `onCancel` method.
+
 ## 1.3.0
 
 * Added `CancellableCompleter.sync` constructor to match Dart's Completer.
