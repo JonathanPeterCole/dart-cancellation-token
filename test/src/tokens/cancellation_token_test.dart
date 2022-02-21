@@ -52,6 +52,19 @@ void main() {
     expect(cancelled, isFalse);
   });
 
+  test('detach calls are ignored for cancelled tokens', () {
+    final CancellationToken token = CancellationToken();
+
+    _TestCancellable? testCancellable;
+    testCancellable = _TestCancellable(
+      (exception) => token.detach(testCancellable!),
+    );
+
+    token
+      ..attach(testCancellable)
+      ..cancel();
+  });
+
   group('isCancelled getter returns true after being cancelled', () {
     test('with no attached cancellables', () {
       final CancellationToken token = CancellationToken();
