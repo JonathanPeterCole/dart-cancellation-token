@@ -54,6 +54,12 @@ class CancellationToken {
   /// Whether or not the token has been cancelled.
   bool get isCancelled => _isCancelled;
 
+  /// Whether or not the token has any attached cancellables.
+  ///
+  /// This is useful when testing a custom Cancellable to ensure it detatches
+  /// from the token after completing.
+  bool get hasCancellables => _attachedCancellables.isNotEmpty;
+
   /// The exception given when the token was cancelled.
   ///
   /// On debug builds this will throw an exception if the token hasn't been

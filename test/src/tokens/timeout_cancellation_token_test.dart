@@ -205,6 +205,54 @@ void main() {
     });
   });
 
+  group('hasCancellables getter', () {
+    test('returns false if there all cancellables have detached', () {
+      final _TestCancellable testCancellable = _TestCancellable((_) {});
+
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1))
+            ..attach(testCancellable)
+            ..detach(testCancellable);
+
+      expect(token.hasCancellables, isFalse);
+    });
+
+    test('returns false if the token was cancelled', () {
+      final _TestCancellable testCancellable = _TestCancellable((_) {});
+
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1))
+            ..attach(testCancellable)
+            ..cancel();
+
+      expect(token.hasCancellables, isFalse);
+    });
+
+    test('returns false if the token timed out', () {
+      fakeAsync((async) {
+        final _TestCancellable testCancellable = _TestCancellable((_) {});
+
+        final TimeoutCancellationToken token =
+            TimeoutCancellationToken(Duration(minutes: 1))
+              ..attach(testCancellable);
+
+        async.elapse(Duration(minutes: 1));
+
+        expect(token.hasCancellables, isFalse);
+      });
+    });
+
+    test('returns true if there are attached cancellables', () {
+      final _TestCancellable testCancellable = _TestCancellable((_) {});
+
+      final TimeoutCancellationToken token =
+          TimeoutCancellationToken(Duration(minutes: 1))
+            ..attach(testCancellable);
+
+      expect(token.hasCancellables, isTrue);
+    });
+  });
+
   group('exception getter returns the cancellation exception', () {
     test('if no exception was provided', () {
       final TimeoutCancellationToken token =

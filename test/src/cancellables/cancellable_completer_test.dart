@@ -3,16 +3,6 @@ import 'package:fake_async/fake_async.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('completes synchronously if not cancelled', () {
-    final CancellationToken token = CancellationToken();
-    final CancellableCompleter<String> completer =
-        CancellableCompleter<String>(token);
-
-    completer.complete('Test value');
-
-    expect(completer.future, completion(equals('Test value')));
-  });
-
   test('completes with given normal value if not cancelled', () {
     final CancellationToken token = CancellationToken();
     final CancellableCompleter<String> completer =
@@ -69,6 +59,32 @@ void main() {
 
       token.cancel();
     });
+  });
+
+  test('detaches from the cancellation token after completing with a value',
+      () async {
+    final CancellationToken token = CancellationToken();
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(token);
+
+    completer.future.then((_) {}, onError: (_) {});
+
+    completer.complete('Test value');
+
+    expect(token.hasCancellables, isFalse);
+  });
+
+  test('detaches from the cancellation token after completing with an error',
+      () async {
+    final CancellationToken token = CancellationToken();
+    final CancellableCompleter<String> completer =
+        CancellableCompleter<String>(token);
+
+    completer.future.then((_) {}, onError: (_) {});
+
+    completer.completeError(_TestException());
+
+    expect(token.hasCancellables, isFalse);
   });
 
   group('sync completer', () {

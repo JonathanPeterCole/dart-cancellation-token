@@ -58,6 +58,34 @@ void main() {
     expect(cancellableFuture.future, throwsA(isA<_TestException>()));
   });
 
+  test('detaches from the cancellation token after completing with a value',
+      () async {
+    final CancellationToken token = CancellationToken();
+    final Future<String> testFuture = Future<String>.value('Test value');
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, token);
+
+    await cancellableFuture.future;
+
+    expect(token.hasCancellables, isFalse);
+  });
+
+  test('detaches from the cancellation token after completing with an error',
+      () async {
+    final CancellationToken token = CancellationToken();
+    final Future<String> testFuture = Future<String>.error(_TestException());
+    final CancellableFuture<String> cancellableFuture =
+        CancellableFuture(testFuture, token);
+
+    try {
+      await cancellableFuture.future;
+    } catch (e) {
+      //
+    }
+
+    expect(token.hasCancellables, isFalse);
+  });
+
   group('isCancelled', () {
     test('returns true if the completer was cancelled', () {
       final CancellationToken token = CancellationToken()..cancel();
@@ -113,6 +141,30 @@ void main() {
       expect(cancellableFuture, throwsA(isA<CancelledException>()));
 
       token.cancel();
+    });
+
+    test('detaches from the cancellation token after completing with a value',
+        () async {
+      final CancellationToken token = CancellationToken();
+      final Future<String> testFuture = Future<String>.value('Test value');
+
+      await testFuture.asCancellable(token);
+
+      expect(token.hasCancellables, isFalse);
+    });
+
+    test('detaches from the cancellation token after completing with an error',
+        () async {
+      final CancellationToken token = CancellationToken();
+      final Future<String> testFuture = Future<String>.error(_TestException());
+
+      try {
+        await testFuture.asCancellable(token);
+      } catch (e) {
+        //
+      }
+
+      expect(token.hasCancellables, isFalse);
     });
   });
 }

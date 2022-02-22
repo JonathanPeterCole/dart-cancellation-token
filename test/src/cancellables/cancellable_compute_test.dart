@@ -43,6 +43,29 @@ void main() {
     );
   });
 
+  test('detaches from the cancellation token after completing with a value',
+      () async {
+    final CancellationToken token = CancellationToken();
+
+    await cancellableCompute(_successIsolateTest, 'Test string', null);
+
+    expect(token.hasCancellables, isFalse);
+  });
+
+  test('detaches from the cancellation token after completing with an error',
+      () async {
+    final CancellationToken token = CancellationToken();
+    final Exception testException = _TestException();
+
+    try {
+      await cancellableCompute(_errorIsolateTest, testException, null);
+    } catch (e) {
+      //
+    }
+
+    expect(token.hasCancellables, isFalse);
+  });
+
   group('completes with a CancelledException', () {
     test('when cancelled before attaching', () {
       final CancellationToken token = CancellationToken()..cancel();
