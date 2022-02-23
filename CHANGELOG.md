@@ -1,3 +1,7 @@
+## 1.3.2
+
+* Added `hasCancellables` to CancellationToken.
+
 ## 1.3.1
 
 * Bugfix: Fix exception if a Cancellable calls `cancellationToken.detach(this)` in its `onCancel` method.
