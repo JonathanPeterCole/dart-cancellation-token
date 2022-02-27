@@ -1,3 +1,7 @@
+## 1.3.3
+
+* Fix CancellableCompute web implementation.
+
 ## 1.3.2
 
 * Added `hasCancellables` to CancellationToken.
