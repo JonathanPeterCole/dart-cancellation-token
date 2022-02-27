@@ -1,5 +1,6 @@
+@TestOn('chrome')
+
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:test/test.dart';
@@ -88,19 +89,19 @@ void main() {
   });
 }
 
-String _successIsolateTest(String input) {
-  sleep(Duration(milliseconds: 100));
+Future<String> _successIsolateTest(String input) async {
+  await Future.delayed(Duration(milliseconds: 100));
   return input;
 }
 
-String _errorIsolateTest(Exception input) {
-  sleep(Duration(milliseconds: 100));
+Future<String> _errorIsolateTest(Exception input) async {
+  await Future.delayed(Duration(milliseconds: 100));
   throw input;
 }
 
-String _infiniteLoopIsolateTest(String input) {
+Future<String> _infiniteLoopIsolateTest(String input) async {
   while (true) {
-    sleep(Duration(milliseconds: 100));
+    await Future.delayed(Duration(milliseconds: 100));
   }
 }
 
