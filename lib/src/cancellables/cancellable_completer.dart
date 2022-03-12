@@ -66,10 +66,10 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   }
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? trace]) {
+  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
     _internalCompleter.completeError(
       cancelException,
-      trace ?? StackTrace.current,
+      stackTrace ?? StackTrace.current,
     );
     _onCancelCallback?.call();
   }
