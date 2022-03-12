@@ -2,8 +2,6 @@
 
 A Dart utility package for easy async task cancellation.
 
-**For Dart versions below 2.15.0, use version 1.0.0 of this package.**
-
 
 ## Features
 
@@ -100,12 +98,35 @@ Isolates aren't supported when building for web. As a fallback, cancellableCompu
 final ChunkyApiResponse response = await cancellableCompute(
   _readAndParseJson,
   jsonString,
-  cancellationToken
+  cancellationToken,
 );
 
 static ChunkyApiResponse _readAndParseJson(String json) {
   final Map<String, dynamic> decodedJson = jsonDecode(json);
   return ChunkyApiResponse.fromJson(decodedJson);
+}
+```
+
+### Cancellable HTTP
+
+For HTTP requests with cancellation support, check out the [Cancellation Token HTTP](https://pub.dev/packages/cancellation_token_http) package, a fork of the Dart HTTP package with the request cancellation powered by this package. If HTTP request cancellation is all you need, the package can be used standalone, but it's most powerful when paired when other cancellables like `cancellableCompute`.
+
+```dart
+import 'package:cancellation_token_http/http.dart' as http;
+
+CancellationToken? cancellationToken;
+
+Future<ChunkyApiResponse> makeRequest() async {
+  // Cancel the request if it's already in progress
+  cancellationToken?.cancel();
+  // Create a CancellationToken for the new request
+  cancellationToken = CancellationToken();
+  // Make the cancellable request and parse the JSON in a cancellable isolate
+  final http.Response response = await http.get(
+    Uri.parse('https://example.com/bigjson'),
+    cancellationToken: token,
+  );
+  return await cancellableCompute(parseJson, response.body, cancellationToken);
 }
 ```
 
