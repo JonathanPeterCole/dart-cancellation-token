@@ -1,3 +1,8 @@
+## 1.3.4
+
+* Rename the `onCancel` method's `trace` parameter to `stackTrace`.
+* Add Cancellation Token HTTP example to README.
+
 ## 1.3.3
 
 * Fix CancellableCompute web implementation.
