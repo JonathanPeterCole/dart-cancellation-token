@@ -1,3 +1,7 @@
+## 1.4.0
+
+* Updated `cancellableCompute` with the latest changes from the Flutter SDK's `compute` function (see [flutter/flutter#99527](https://github.com/flutter/flutter/pull/99527)).
+
 ## 1.3.4
 
 * Rename the `onCancel` method's `trace` parameter to `stackTrace`.
