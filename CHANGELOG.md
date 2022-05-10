@@ -1,5 +1,18 @@
 ## 1.4.0
 
+* Added new static functions to `CancellableFuture` to make the API more similar to Dart's `Future`:
+  * `Future()` ➡️ `CancellableFuture.from()`
+  * `Future.microtask()` ➡️ `CancellableFuture.microtask()`
+  * `Future.sync()` ➡️ `CancellableFuture.sync()`
+  * `Future.delayed()` ➡️ `CancellableFuture.delayed()`
+* **Breaking:** The `CancellableFuture` constructor is now private. Calls to this constuctor should be replaced with `.asCancellable()` or `CancellableFuture.value()`:
+  ```dart
+  // Removed:
+  // await CancellableFuture(exampleFuture, cancellationToken).future;
+
+  // Recommended:
+  await exampleFuture.asCancellable(cancellationToken);
+  ```
 * Updated `cancellableCompute` with the latest changes from the Flutter SDK's `compute` function (see [flutter/flutter#99527](https://github.com/flutter/flutter/pull/99527)).
 
 ## 1.3.4
