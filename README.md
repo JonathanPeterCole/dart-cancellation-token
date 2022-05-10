@@ -26,10 +26,16 @@ When a TimeoutCancellationToken is created, the timer will begin immediately. To
 
 ## Usage
 
-### Cancelling Futures
+### Cancellable Future
 
-To make an existing future cancellable, you can use the `.asCancellable()` 
-extension.
+The CancellableFuture class provides cancellable versions for many of Dart's Future constructors, including:
+* `Future()` ➡️ `CancellableFuture.from()`
+* `Future.microtask()` ➡️ `CancellableFuture.microtask()`
+* `Future.sync()` ➡️ `CancellableFuture.sync()`
+* `Future.value()` ➡️ `CancellableFuture.value()`
+* `Future.delayed()` ➡️ `CancellableFuture.delayed()`
+
+To make existing futures cancellable, you can also use the `.asCancellable()` extension.
 
 ```dart
 CancellationToken cancellationToken = CancellationToken();

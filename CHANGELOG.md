@@ -4,6 +4,7 @@
   * `Future()` ➡️ `CancellableFuture.from()`
   * `Future.microtask()` ➡️ `CancellableFuture.microtask()`
   * `Future.sync()` ➡️ `CancellableFuture.sync()`
+  * `Future.value()` ➡️ `CancellableFuture.value()`
   * `Future.delayed()` ➡️ `CancellableFuture.delayed()`
 * **Breaking:** The `CancellableFuture` constructor is now private. Calls to this constuctor should be replaced with `.asCancellable()` or `CancellableFuture.value()`:
   ```dart
