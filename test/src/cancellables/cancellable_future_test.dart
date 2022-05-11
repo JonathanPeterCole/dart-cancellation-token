@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -53,13 +54,6 @@ void main() {
       );
     });
 
-    test('completes with normal value if cancellation token is null', () {
-      expect(
-        CancellableFuture.from(() => Future.value('Test value'), null),
-        completion(equals('Test value')),
-      );
-    });
-
     test('completes with normal exception if not cancelled', () {
       final CancellationToken token = CancellationToken();
       expect(
@@ -101,13 +95,6 @@ void main() {
       token.cancel();
     });
 
-    test('completes with normal exception if cancellation token is null', () {
-      expect(
-        CancellableFuture.from(() => Future.error(_TestException()), null),
-        throwsA(isA<_TestException>()),
-      );
-    });
-
     test('detaches from the cancellation token after completing with a value',
         () async {
       final CancellationToken token = CancellationToken();
@@ -138,13 +125,6 @@ void main() {
       final CancellationToken token = CancellationToken();
       expect(
         CancellableFuture.microtask(() => Future.value('Test value'), token),
-        completion(equals('Test value')),
-      );
-    });
-
-    test('completes with normal value if cancellation token is null', () {
-      expect(
-        CancellableFuture.microtask(() => Future.value('Test value'), null),
         completion(equals('Test value')),
       );
     });
@@ -191,13 +171,6 @@ void main() {
       token.cancel();
     });
 
-    test('completes with normal exception if cancellation token is null', () {
-      expect(
-        CancellableFuture.microtask(() => Future.error(_TestException()), null),
-        throwsA(isA<_TestException>()),
-      );
-    });
-
     test('detaches from the cancellation token after completing with a value',
         () async {
       final CancellationToken token = CancellationToken();
@@ -229,13 +202,6 @@ void main() {
       final CancellationToken token = CancellationToken();
       expect(
         CancellableFuture.sync(() => Future.value('Test value'), token),
-        completion(equals('Test value')),
-      );
-    });
-
-    test('completes with normal value if cancellation token is null', () {
-      expect(
-        CancellableFuture.sync(() => Future.value('Test value'), null),
         completion(equals('Test value')),
       );
     });
@@ -281,13 +247,6 @@ void main() {
       token.cancel();
     });
 
-    test('completes with normal exception if cancellation token is null', () {
-      expect(
-        CancellableFuture.sync(() => Future.error(_TestException()), null),
-        throwsA(isA<_TestException>()),
-      );
-    });
-
     test('detaches from the cancellation token after completing with a value',
         () async {
       final CancellationToken token = CancellationToken();
@@ -322,13 +281,6 @@ void main() {
       );
     });
 
-    test('completes with normal value if cancellation token is null', () {
-      expect(
-        CancellableFuture.value('Test value', null),
-        completion(equals('Test value')),
-      );
-    });
-
     test('completes with normal exception if not cancelled', () {
       final CancellationToken token = CancellationToken();
       expect(
@@ -357,13 +309,6 @@ void main() {
       token.cancel();
     });
 
-    test('completes with normal exception if cancellation token is null', () {
-      expect(
-        CancellableFuture.value(Future.error(_TestException()), null),
-        throwsA(isA<_TestException>()),
-      );
-    });
-
     test('detaches from the cancellation token after completing with a value',
         () async {
       final CancellationToken token = CancellationToken();
@@ -383,6 +328,121 @@ void main() {
       }
 
       expect(token.hasCancellables, isFalse);
+    });
+  });
+
+  group('CancellableFuture.delayed()', () {
+    test('completes after the given duration', () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        expect(
+          CancellableFuture.delayed(Duration(seconds: 5), token),
+          completes,
+        );
+
+        async.elapse(Duration(seconds: 5));
+      });
+    });
+
+    test('completes with the result of the computation if not cancelled', () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        expect(
+          CancellableFuture.delayed(
+            Duration(seconds: 5),
+            token,
+            () => Future.value('Test value'),
+          ),
+          completion('Test value'),
+        );
+
+        async.elapse(Duration(seconds: 5));
+      });
+    });
+
+    test('completes with normal exception if not cancelled', () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        expect(
+          CancellableFuture.delayed(
+            Duration(seconds: 5),
+            token,
+            () => Future.error(_TestException()),
+          ),
+          throwsA(isA<_TestException>()),
+        );
+
+        async.elapse(Duration(seconds: 5));
+      });
+    });
+
+    test('computation is not run if cancelled before attach', () async {
+      final CancellationToken token = CancellationToken()..cancel();
+
+      bool computationRun = false;
+      await ignoreCancellation(() {
+        return CancellableFuture.delayed(
+          Duration(seconds: 5),
+          token,
+          () => computationRun = true,
+        );
+      });
+
+      expect(computationRun, isFalse);
+    });
+
+    test('computation is not run if cancelled during delay duration', () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        bool computationRun = false;
+        CancellableFuture.delayed(
+          Duration(seconds: 5),
+          token,
+          () => computationRun = true,
+        ).ignore();
+
+        async.elapse(Duration(seconds: 2));
+        token.cancel();
+        async.flushTimers();
+
+        expect(computationRun, isFalse);
+      });
+    });
+
+    test('detaches from the cancellation token after completing with a value',
+        () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        CancellableFuture.delayed(
+          Duration(seconds: 5),
+          token,
+          () => Future.value('Test value'),
+        ).ignore();
+        async.elapse(Duration(seconds: 5));
+
+        expect(token.hasCancellables, isFalse);
+      });
+    });
+
+    test('detaches from the cancellation token after completing with an error',
+        () {
+      fakeAsync((async) {
+        final CancellationToken token = CancellationToken();
+
+        CancellableFuture.delayed(
+          Duration(seconds: 5),
+          token,
+          () => Future.error(_TestException()),
+        ).ignore();
+        async.elapse(Duration(seconds: 5));
+
+        expect(token.hasCancellables, isFalse);
+      });
     });
   });
 
