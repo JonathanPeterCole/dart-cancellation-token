@@ -15,11 +15,11 @@ A Dart utility package for easy async task cancellation.
 
 ### CancellationToken
 
-The standard CancellationToken can be used to manually cancel tasks. When `.cancel()` is called, all cancellables using the token will be cancelled. By default, async tasks cancelled with a CancellationToken will throw a CancelledException. You can pass a custom exception using `.cancel(CustomException())` to change this.
+The standard CancellationToken for manually cancelling tasks. When `.cancel()` is called, all cancellables using the token will be cancelled. By default, async tasks cancelled with a CancellationToken will throw a CancelledException. You can pass a custom exception using `.cancel(CustomException())` to change this.
 
 ### TimeoutCancellationToken
 
-To cancel tasks after a certain amount of time, you can use a TimeoutCancellationToken in place of the standard CancellationToken. By default, async tasks will be cancelled with a TimeoutException when the timeout duration ends. You can pass a custom exception by using the `timeoutException` parameter. 
+To cancel tasks after a certain amount of time, you can use a TimeoutCancellationToken. By default, async tasks will be cancelled with a TimeoutException when the timeout duration ends. You can pass a custom exception by using the `timeoutException` parameter. 
 
 When a TimeoutCancellationToken is created, the timer will begin immediately. To only start the timer when the token is attached to a task, set the `lazyStart` parameter to true.
 
