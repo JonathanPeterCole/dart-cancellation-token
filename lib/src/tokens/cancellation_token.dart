@@ -1,5 +1,6 @@
 import 'package:cancellation_token/src/cancellables/cancellable.dart';
 import 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
+import 'package:cancellation_token/src/tokens/merged_cancellation_token.dart';
 
 /// A token for controlling the cancellation of [Cancellable] operations.
 ///
@@ -38,6 +39,8 @@ import 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
 ///
 /// See also:
 ///
+///  * [MergedCancellationToken], a [CancellationToken] that combines multiple
+///    tokens together.
 ///  * [TimeoutCancellationToken], a [CancellationToken] that automatically
 ///    cancels after a given duration.
 class CancellationToken {
@@ -63,10 +66,8 @@ class CancellationToken {
   /// The exception given when the token was cancelled.
   ///
   /// On debug builds this will throw an exception if the token hasn't been
-  /// called yet.
-  ///
-  /// On release builds a fallback [CancelledException] will be returned to
-  /// prevent unexpected exceptions.
+  /// called yet. On release builds a fallback [CancelledException] will be
+  /// returned to prevent unexpected exceptions.
   Exception get exception {
     assert(
       isCancelled,
@@ -75,6 +76,13 @@ class CancellationToken {
     );
     return _exception ??= CancelledException();
   }
+
+  /// Merges this [CancellationToken] with another to create a single token
+  /// that will be cancelled when either token is cancelled.
+  ///
+  /// When merging more than two tokens, use [MergedCancellationToken] directly.
+  MergedCancellationToken merge(CancellationToken other) =>
+      MergedCancellationToken([this, other]);
 
   /// Cancels all operations with this token.
   ///
@@ -92,7 +100,7 @@ class CancellationToken {
   /// Attaches a [Cancellable] to this token.
   ///
   /// Before attaching to a [CancellationToken], you should check if it's
-  ///  already been cancelled by using [isCancelled].
+  /// already been cancelled by using [isCancelled].
   void attach(Cancellable cancellable) {
     assert(
       !isCancelled,
