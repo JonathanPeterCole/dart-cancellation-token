@@ -232,12 +232,3 @@ class _DelayedCancellableFuture<T> with Cancellable {
   /// or null.
   Future<T> get future => _internalCompleter.future;
 }
-
-extension CancellableFutureExtension<T> on Future<T> {
-  /// Converts the future to a cancellable future.
-  Future<T> asCancellable(
-    CancellationToken? cancellationToken, {
-    OnCancelCallback? onCancel,
-  }) =>
-      CancellableFuture.value(this, cancellationToken, onCancel: onCancel);
-}

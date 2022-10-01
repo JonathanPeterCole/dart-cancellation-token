@@ -14,6 +14,7 @@ export 'package:cancellation_token/src/tokens/cancellation_token.dart';
 export 'package:cancellation_token/src/tokens/timeout_cancellation_token.dart';
 
 // Utils
+export 'package:cancellation_token/src/utils/extensions.dart';
 export 'package:cancellation_token/src/utils/ignore_cancellation.dart';
 
 // Types
