@@ -125,7 +125,7 @@ void main() {
       test('if no exception was provided', () {
         final CancellationToken token = CancellationToken()..cancel();
 
-        expect(token.exception, TypeMatcher<CancelledException>());
+        expect(token.exception, isA<CancelledException>());
       });
 
       test('if a custom exception was provided', () {

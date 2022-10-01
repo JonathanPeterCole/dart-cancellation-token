@@ -7,8 +7,8 @@ extension CancellableFutureExtension<T> on Future<T> {
   ///
   /// See also:
   ///
-  ///    * [cancellableFutureOr], which provides similar functionality for
-  ///      [FutureOr].
+  ///  * [cancellableFutureOr], which provides similar functionality for
+  ///    [FutureOr].
   Future<T> asCancellable(
     CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,

@@ -64,8 +64,8 @@ void main() {
 
         async.elapse(Duration(minutes: 1));
 
-        expect(cancelledWithA, TypeMatcher<TimeoutException>());
-        expect(cancelledWithB, TypeMatcher<TimeoutException>());
+        expect(cancelledWithA, isA<TimeoutException>());
+        expect(cancelledWithB, isA<TimeoutException>());
       });
     });
 
@@ -258,7 +258,7 @@ void main() {
       final TimeoutCancellationToken token =
           TimeoutCancellationToken(Duration(minutes: 1))..cancel();
 
-      expect(token.exception, TypeMatcher<CancelledException>());
+      expect(token.exception, isA<CancelledException>());
     });
 
     test('if a custom exception was provided', () {

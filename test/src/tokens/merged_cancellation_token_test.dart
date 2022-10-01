@@ -195,7 +195,7 @@ void main() {
       test('if no exception was provided', () {
         mergedToken.cancel();
 
-        expect(mergedToken.exception, TypeMatcher<CancelledException>());
+        expect(mergedToken.exception, isA<CancelledException>());
       });
 
       test('if a custom exception was provided', () {
@@ -212,7 +212,7 @@ void main() {
       test('if no exception was provided', () {
         tokenB.cancel();
 
-        expect(mergedToken.exception, TypeMatcher<CancelledException>());
+        expect(mergedToken.exception, isA<CancelledException>());
       });
 
       test('if a custom exception was provided', () {
