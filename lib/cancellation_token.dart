@@ -3,6 +3,7 @@ library cancellation_token;
 // Cancellables
 export 'package:cancellation_token/src/cancellables/cancellable_completer.dart';
 export 'package:cancellation_token/src/cancellables/cancellable_compute.dart';
+export 'package:cancellation_token/src/cancellables/cancellable_future_or.dart';
 export 'package:cancellation_token/src/cancellables/cancellable_future.dart';
 export 'package:cancellation_token/src/cancellables/cancellable.dart';
 
