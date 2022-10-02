@@ -23,6 +23,13 @@ To cancel tasks after a certain amount of time, you can use a TimeoutCancellatio
 
 When a TimeoutCancellationToken is created, the timer will begin immediately. To only start the timer when the token is attached to a task, set the `lazyStart` parameter to true.
 
+### MergedCancellationToken
+
+To combine multiple tokens together, you can use a MergedCancellationToken. To create one, use the `MergedCancellationToken()` constructor, or use the `.merge()` shortcut method on an existing token.
+
+> #### Caveats
+> When using a MergedCancellationToken, the cancellation exception thrown isn't guaranteed to be the exception of the token that was cancelled first. If no cancellable operations were running when the tokens were cancelled, the exception from the first token in the list will be used. When using the `.merge()` shortcut, this the token on which you called `.merge()`.
+
 
 ## Usage
 

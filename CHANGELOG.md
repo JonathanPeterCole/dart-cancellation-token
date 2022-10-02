@@ -1,3 +1,8 @@
+## 1.5.0
+
+* Added `MergedCancellationToken` to combine multiple cancellation tokens into one.
+* Added `cancellableFutureOr()` to simplify cancellation when working with `FutureOr` types.
+
 ## 1.4.0
 
 * Added new static functions to `CancellableFuture` to make the API more similar to Dart's `Future`:

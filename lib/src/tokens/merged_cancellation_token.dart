@@ -7,7 +7,8 @@ import 'package:collection/collection.dart';
 ///
 /// Note that when using a [MergedCancellationToken], the cancellation exception
 /// thrown isn't guaranteed to be the exception of the token that was cancelled
-/// first.
+/// first. If no cancellable operations were running when the tokens were
+/// cancelled, the exception from the first token in the list will be used.
 class MergedCancellationToken with Cancellable implements CancellationToken {
   MergedCancellationToken(List<CancellationToken> tokens) : _tokens = tokens {
     _updateCancellationStatus();
