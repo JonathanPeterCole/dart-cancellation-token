@@ -1,52 +1,61 @@
+import 'dart:async';
+
 import 'package:cancellation_token/cancellation_token.dart';
 
-/// Runs a callback and silently catches cancellations. Other exceptions will be
+/// Runs an operation and silently catches cancellations. Other exceptions can
+/// be handled using [onError]. If [onError] is null, exceptions will be
 /// rethrown.
 ///
 /// If a custom exception is passed when cancelling the CancellationToken, it
 /// won't be handled by this function.
 ///
+/// ### Inside a try/catch
+///
 /// ```dart
-/// class DetailsPage extends StatefulWidget {
-///   const DetailsPage({ Key? key }) : super(key: key);
-///
-///   @override
-///   _DetailsPageState createState() => _DetailsPageState();
-/// }
-///
-/// class _DetailsPageState extends State<DetailsPage> {
-///   CancellationToken? cancellationToken;
-///
-///   Future<void> loadPage() async {
-///     cancellationToken?.cancel();
-///     cancellationToken = CancellationToken();
-///     try {
-///       await ignoreCancellation(() async {
-///         response = getDetailsFromApi().asCancellable(cancellationToken);
-///       });
-///     } catch (e, stackTrace) {
-///       // Other exceptions will still be caught
-///     }
-///   }
-///
-///   @override
-///   void dispose() {
-///     cancellationToken?.cancel();
-///     super.dispose();
-///   }
-///
-///   @override
-///   Widget build(BuildContext context) {
-///     /// ...
-///   }
+/// try {
+///   ignoreCancellation(() async {
+///     response = await apiEndpoint().asCancellable(cancellationToken);
+///   });
+/// } catch (e, stackTrace) {
+///   // Other errors will be rethrown
 /// }
 /// ```
-Future<void> ignoreCancellation(Future<dynamic> Function() callback) async {
+///
+/// ### Outside of a try/catch
+///
+/// ```dart
+/// ignoreCancellation(
+///   () async {
+///     response = await apiEndpoint().asCancellable(cancellationToken);
+///   },
+///   catchError: (e, stackTrace) {
+///     // This is the equivalent of a catch block
+///   },
+///   whenComplete: () {
+///     // This is similar to a finally block, but is only called if the
+///     // operation wasn't cancelled
+///   },
+///   whenCompleteOrCancelled: () {
+///     // This is the equivalent of a finally block
+///   },
+/// );
+/// ```
+Future<void> ignoreCancellation(
+  FutureOr<dynamic> Function() operation, {
+  FutureOr<void> Function(Object e, [StackTrace stackTrace])? onError,
+  FutureOr<void> Function()? whenComplete,
+  FutureOr<void> Function()? whenCompleteOrCancelled,
+}) async {
   try {
-    await callback();
+    await operation();
+    await whenComplete?.call();
   } on CancelledException {
-    // Ignore cancellations
-  } catch (e) {
-    rethrow;
+    // Ignore cancellation
+  } catch (e, stackTrace) {
+    if (onError == null) rethrow;
+    await onError(e, stackTrace);
+    await whenComplete?.call();
+  } finally {
+    await whenCompleteOrCancelled?.call();
   }
 }
