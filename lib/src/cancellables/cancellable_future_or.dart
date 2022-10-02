@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:cancellation_token/cancellation_token.dart';
 
-/// Converts a [FuturOr] to a cancellable [Future].
+/// Converts a [FutureOr] to a cancellable [Future].
 ///
 /// This function exists to make the cancellation_token package easier to use,
 /// and calls [CancellableFuture.from] internally.
 ///
-/// If [token] is already cancelled when this function is called, the
-/// computation won't run.
+/// If [cancellationToken] is already cancelled when this function is called,
+/// the computation won't run.
 ///
 /// ### Why isn't there a `.asCancellable()` extension for [FutureOr]?
 ///
