@@ -42,7 +42,7 @@ import 'package:cancellation_token/cancellation_token.dart';
 /// ```
 Future<void> ignoreCancellation(
   FutureOr<dynamic> Function() operation, {
-  FutureOr<void> Function(Object e, [StackTrace stackTrace])? onError,
+  FutureOr<void> Function(Object e, StackTrace stackTrace)? onError,
   FutureOr<void> Function()? whenComplete,
   FutureOr<void> Function()? whenCompleteOrCancelled,
 }) async {
