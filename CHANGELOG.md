@@ -2,6 +2,7 @@
 
 * Added `MergedCancellationToken` to combine multiple cancellation tokens into one.
 * Added `cancellableFutureOr()` to simplify cancellation when working with `FutureOr` types.
+* Added `onError`, `whenComplete`, and `whenCompleteOrCancelled` params to `ignoreCancellation()`. This change doesn't impact existing usage.
 
 ## 1.4.0
 
