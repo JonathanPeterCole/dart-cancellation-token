@@ -3,5 +3,5 @@ enum Task {
   simultaneousA,
   simultaneousB,
   simultaneousC,
-  compute,
+  isolate,
 }

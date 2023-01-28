@@ -38,7 +38,7 @@ class _DemoPageState extends State<DemoPage> {
     Task.simultaneousA: Status.stopped,
     Task.simultaneousB: Status.stopped,
     Task.simultaneousC: Status.stopped,
-    Task.compute: Status.stopped,
+    Task.isolate: Status.stopped,
   };
   CancellationToken? _cancellationToken;
 
@@ -75,15 +75,14 @@ class _DemoPageState extends State<DemoPage> {
             setState(() => _tasks[Task.simultaneousC] = Status.complete)),
       ]);
 
-      // To run a function in a cancellable isolate, use cancellableCompute in
-      // place of the Flutter's compute function
-      setState(() => _tasks[Task.compute] = Status.running);
-      await cancellableCompute(
-        delayedIsolateFunction,
-        const Duration(seconds: 2),
+      // To run a function in a cancellable isolate, use CancellableIsolate.run
+      // or cancellableCompute
+      setState(() => _tasks[Task.isolate] = Status.running);
+      await CancellableIsolate.run(
+        () => delayedIsolateFunction(const Duration(seconds: 2)),
         _cancellationToken,
       );
-      setState(() => _tasks[Task.compute] = Status.complete);
+      setState(() => _tasks[Task.isolate] = Status.complete);
     } on CancelledException {
       // In some cases, like when cancelling tasks because in a widget's
       // dispose method, you'll want to catch the CancellationException but
@@ -140,8 +139,8 @@ class _DemoPageState extends State<DemoPage> {
               status: _tasks[Task.simultaneousC]!,
             ),
             TaskStatusDisplay(
-              label: 'Compute status',
-              status: _tasks[Task.compute]!,
+              label: 'Isolate status',
+              status: _tasks[Task.isolate]!,
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
@@ -170,8 +169,7 @@ Future<void> delayedFuture() async {
 /// A simple function for testing isolates.
 ///
 /// If you cancel running tasks whilst this isolate is sleeping, the isolate
-/// will be killed and you'll only see the 'Isolate started' message in the
-/// console.
+/// will be killed and you'll only see the 'Isolate started' message in the log.
 void delayedIsolateFunction(Duration delay) {
   if (kDebugMode) print('Isolate started - Waiting ${delay.inSeconds} seconds');
   sleep(delay);
