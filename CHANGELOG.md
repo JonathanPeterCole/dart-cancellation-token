@@ -1,3 +1,9 @@
+## 1.6.0
+
+* Added `CancellableIsolate.run()`, based on the new [`Isolate.run()` method in Dart 2.19.0](https://medium.com/dartlang/better-isolate-management-with-isolate-run-547ef3d6459b).
+* Updated `cancellableCompute` to use `CancellableIsolate.run()` internally.
+* Increased minimum Dart SDK to 2.19.0.
+
 ## 1.5.0
 
 * Added `MergedCancellationToken` to combine multiple cancellation tokens into one.
