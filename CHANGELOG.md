@@ -1,3 +1,7 @@
+## 1.6.1
+
+* Include Dart SDK license in license file.
+
 ## 1.6.0
 
 * Added `CancellableIsolate.run()`, based on the new [`Isolate.run()` method in Dart 2.19.0](https://medium.com/dartlang/better-isolate-management-with-isolate-run-547ef3d6459b).
