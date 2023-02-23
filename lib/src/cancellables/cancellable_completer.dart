@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:cancellation_token/src/cancellables/cancellable.dart';
 import 'package:cancellation_token/src/tokens/cancellation_token.dart';
 import 'package:cancellation_token/src/types.dart';
+import 'package:leak_tracker/leak_tracker.dart';
+
+const String _library = 'package:cancellation_token/cancellation_token.dart';
 
 /// A [Completer] that can be cancelled using a [CancellationToken].
 ///
@@ -18,6 +21,11 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   })  : _cancellationToken = cancellationToken,
         _onCancelCallback = onCancel,
         _internalCompleter = Completer<T>() {
+    dispatchObjectCreated(
+      library: _library,
+      className: '$CancellableCompleter',
+      object: this,
+    );
     maybeAttach(cancellationToken);
   }
 
@@ -33,6 +41,11 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   })  : _cancellationToken = cancellationToken,
         _onCancelCallback = onCancel,
         _internalCompleter = Completer<T>.sync() {
+    dispatchObjectCreated(
+      library: _library,
+      className: '$CancellableCompleter',
+      object: this,
+    );
     maybeAttach(cancellationToken);
   }
 
@@ -59,6 +72,7 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
     if (isCancelled) return;
     detach();
     _internalCompleter.complete(value);
+    dispatchObjectDisposed(object: this);
   }
 
   @override
@@ -66,6 +80,7 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
     if (isCancelled) return;
     detach();
     _internalCompleter.completeError(error, stackTrace);
+    dispatchObjectDisposed(object: this);
   }
 
   @override
@@ -73,5 +88,6 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
     super.onCancel(cancelException);
     _internalCompleter.completeError(cancelException, cancellationStackTrace);
     _onCancelCallback?.call();
+    dispatchObjectDisposed(object: this);
   }
 }

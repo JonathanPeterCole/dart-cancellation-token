@@ -1,5 +1,6 @@
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:leak_tracker/leak_tracker.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -218,6 +219,52 @@ void main() {
           CancellableCompleter<String>(token);
 
       expect(completer.isCompleted, isFalse);
+    });
+  });
+
+  group('completes without leaks', () {
+    test('when not cancelled', () async {
+      final Leaks leaks = await withLeakTracking(
+        () async {
+          final CancellationToken token = CancellationToken();
+          final CancellableCompleter<String> completer =
+              CancellableCompleter<String>(token);
+
+          completer.complete('Test value');
+        },
+      );
+
+      expect(leaks, isLeakFree);
+    });
+
+    test('when cancelled before attaching', () async {
+      final Leaks leaks = await withLeakTracking(
+        () async {
+          final CancellationToken token = CancellationToken()..cancel();
+          final CancellableCompleter<String> completer =
+              CancellableCompleter<String>(token);
+
+          expect(completer.future, throwsA(isA<CancelledException>()));
+        },
+      );
+
+      expect(leaks, isLeakFree);
+    });
+
+    test('when cancelled after attaching', () async {
+      final Leaks leaks = await withLeakTracking(
+        () async {
+          final CancellationToken token = CancellationToken();
+          final CancellableCompleter<String> completer =
+              CancellableCompleter<String>(token);
+
+          expect(completer.future, throwsA(isA<CancelledException>()));
+
+          token.cancel();
+        },
+      );
+
+      expect(leaks, isLeakFree);
     });
   });
 }
