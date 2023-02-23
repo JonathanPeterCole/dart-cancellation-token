@@ -14,8 +14,8 @@ void main() {
         _TestCancellable((exception) => cancelledWithB = exception);
 
     token
-      ..attach(testCancellableA)
-      ..attach(testCancellableB)
+      ..attachCancellable(testCancellableA)
+      ..attachCancellable(testCancellableB)
       ..cancel(testException);
 
     expect(cancelledWithA, equals(testException));
@@ -30,7 +30,7 @@ void main() {
         _TestCancellable((exception) => cancelledCount++);
 
     token
-      ..attach(testCancellable)
+      ..attachCancellable(testCancellable)
       ..cancel()
       ..cancel();
 
@@ -45,8 +45,8 @@ void main() {
         _TestCancellable((exception) => cancelled = false);
 
     token
-      ..attach(testCancellable)
-      ..detach(testCancellable)
+      ..attachCancellable(testCancellable)
+      ..detachCancellable(testCancellable)
       ..cancel();
 
     expect(cancelled, isFalse);
@@ -57,11 +57,11 @@ void main() {
 
     _TestCancellable? testCancellable;
     testCancellable = _TestCancellable(
-      (exception) => token.detach(testCancellable!),
+      (exception) => token.detachCancellable(testCancellable!),
     );
 
     token
-      ..attach(testCancellable)
+      ..attachCancellable(testCancellable)
       ..cancel();
   });
 
@@ -79,7 +79,7 @@ void main() {
     test('with attached cancellables', () {
       final CancellationToken token = CancellationToken();
       final _TestCancellable testCancellable = _TestCancellable((_) {});
-      token.attach(testCancellable);
+      token.attachCancellable(testCancellable);
 
       expect(token.isCancelled, isFalse);
 
@@ -94,8 +94,8 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       final CancellationToken token = CancellationToken()
-        ..attach(testCancellable)
-        ..detach(testCancellable);
+        ..attachCancellable(testCancellable)
+        ..detachCancellable(testCancellable);
 
       expect(token.hasCancellables, isFalse);
     });
@@ -104,7 +104,7 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       final CancellationToken token = CancellationToken()
-        ..attach(testCancellable)
+        ..attachCancellable(testCancellable)
         ..cancel();
 
       expect(token.hasCancellables, isFalse);
@@ -114,7 +114,7 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       final CancellationToken token = CancellationToken()
-        ..attach(testCancellable);
+        ..attachCancellable(testCancellable);
 
       expect(token.hasCancellables, isTrue);
     });
@@ -152,6 +152,8 @@ class _TestCancellable with Cancellable {
   final Function(Exception cancelException) onCancelCallback;
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? trace]) =>
-      onCancelCallback(cancelException);
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    onCancelCallback(cancelException);
+  }
 }

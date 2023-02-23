@@ -49,9 +49,9 @@ class TimeoutCancellationToken extends CancellationToken {
   /// Before attaching to a [CancellationToken], you should check if it's
   /// already been cancelled by using [isCancelled].
   @override
-  void attach(Cancellable cancellable) {
+  void attachCancellable(Cancellable cancellable) {
     if (!isCancelled && _timer == null) Timer(_duration, _onTimerEnd);
-    super.attach(cancellable);
+    super.attachCancellable(cancellable);
   }
 
   /// Cancells the token when the timeout ends.

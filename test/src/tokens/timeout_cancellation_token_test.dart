@@ -18,8 +18,8 @@ void main() {
         _TestCancellable((exception) => cancelledWithB = exception);
 
     token
-      ..attach(testCancellableA)
-      ..attach(testCancellableB)
+      ..attachCancellable(testCancellableA)
+      ..attachCancellable(testCancellableB)
       ..cancel(testException);
 
     expect(cancelledWithA, equals(testException));
@@ -35,8 +35,8 @@ void main() {
         _TestCancellable((exception) => cancelled = false);
 
     token
-      ..attach(testCancellable)
-      ..detach(testCancellable)
+      ..attachCancellable(testCancellable)
+      ..detachCancellable(testCancellable)
       ..cancel();
 
     expect(cancelled, isFalse);
@@ -56,8 +56,8 @@ void main() {
             _TestCancellable((exception) => cancelledWithB = exception);
 
         token
-          ..attach(testCancellableA)
-          ..attach(testCancellableB);
+          ..attachCancellable(testCancellableA)
+          ..attachCancellable(testCancellableB);
 
         expect(cancelledWithA, isNull);
         expect(cancelledWithB, isNull);
@@ -85,8 +85,8 @@ void main() {
             _TestCancellable((exception) => cancelledWithB = exception);
 
         token
-          ..attach(testCancellableA)
-          ..attach(testCancellableB);
+          ..attachCancellable(testCancellableA)
+          ..attachCancellable(testCancellableB);
 
         expect(cancelledWithA, isNull);
         expect(cancelledWithB, isNull);
@@ -113,7 +113,7 @@ void main() {
         bool cancelled = false;
         final _TestCancellable testCancellable =
             _TestCancellable((exception) => cancelled = true);
-        token.attach(testCancellable);
+        token.attachCancellable(testCancellable);
 
         async.elapse(Duration(minutes: 1));
 
@@ -133,7 +133,7 @@ void main() {
           _TestCancellable((exception) => cancelledCount++);
 
       token
-        ..attach(testCancellable)
+        ..attachCancellable(testCancellable)
         ..cancel()
         ..cancel();
 
@@ -150,7 +150,7 @@ void main() {
             _TestCancellable((exception) => cancelledCount++);
 
         token
-          ..attach(testCancellable)
+          ..attachCancellable(testCancellable)
           ..cancel();
 
         async.elapse(Duration(minutes: 1));
@@ -168,7 +168,7 @@ void main() {
         final _TestCancellable testCancellable =
             _TestCancellable((exception) => cancelledCount++);
 
-        token.attach(testCancellable);
+        token.attachCancellable(testCancellable);
 
         async.elapse(Duration(minutes: 1));
 
@@ -195,7 +195,7 @@ void main() {
       final TimeoutCancellationToken token =
           TimeoutCancellationToken(Duration(minutes: 1));
       final _TestCancellable testCancellable = _TestCancellable((_) {});
-      token.attach(testCancellable);
+      token.attachCancellable(testCancellable);
 
       expect(token.isCancelled, isFalse);
 
@@ -211,8 +211,8 @@ void main() {
 
       final TimeoutCancellationToken token =
           TimeoutCancellationToken(Duration(minutes: 1))
-            ..attach(testCancellable)
-            ..detach(testCancellable);
+            ..attachCancellable(testCancellable)
+            ..detachCancellable(testCancellable);
 
       expect(token.hasCancellables, isFalse);
     });
@@ -222,7 +222,7 @@ void main() {
 
       final TimeoutCancellationToken token =
           TimeoutCancellationToken(Duration(minutes: 1))
-            ..attach(testCancellable)
+            ..attachCancellable(testCancellable)
             ..cancel();
 
       expect(token.hasCancellables, isFalse);
@@ -234,7 +234,7 @@ void main() {
 
         final TimeoutCancellationToken token =
             TimeoutCancellationToken(Duration(minutes: 1))
-              ..attach(testCancellable);
+              ..attachCancellable(testCancellable);
 
         async.elapse(Duration(minutes: 1));
 
@@ -247,7 +247,7 @@ void main() {
 
       final TimeoutCancellationToken token =
           TimeoutCancellationToken(Duration(minutes: 1))
-            ..attach(testCancellable);
+            ..attachCancellable(testCancellable);
 
       expect(token.hasCancellables, isTrue);
     });
@@ -278,6 +278,8 @@ class _TestCancellable with Cancellable {
   final Function(Exception cancelException) onCancelCallback;
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? trace]) =>
-      onCancelCallback(cancelException);
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    onCancelCallback(cancelException);
+  }
 }

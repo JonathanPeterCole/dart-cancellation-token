@@ -159,17 +159,17 @@ class MyCancellable with Cancellable {
 
   final CancellationToken cancellationToken;
 
-  /// Override `onCancel()` to clean up resources after cancellation.
   @override
   void onCancel(Exception cancelException) {
-    // Clean up resources here, like closing an HttpClient
+    super.onCancel(exception);
+    // Clean up resources here, like closing an HttpClient, and complete 
+    // any futures or streams 
   }
   
   void complete() {
     // If your async task completes before the token is cancelled, 
     // detatch from the token
-    _cancellationToken.detach(this);
+    detach();
   }
 }
-
 ```

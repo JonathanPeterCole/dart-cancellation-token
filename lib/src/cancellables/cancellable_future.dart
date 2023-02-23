@@ -172,16 +172,12 @@ class _DelayedCancellableFuture<T> with Cancellable {
           null is T || computation != null,
           'A computation is required if T is not nullable.',
         ),
-        _cancellationToken = cancellationToken,
         _computation = computation,
         _onCancelCallback = onCancel,
         _internalCompleter = Completer<T>.sync() {
     final bool attached = maybeAttach(cancellationToken);
     if (attached) _timer = Timer(duration, _onTimerEnd);
   }
-
-  /// The [CancellationToken] that this delayed future can be cancelled by.
-  final CancellationToken? _cancellationToken;
 
   /// The delayed computation.
   final FutureOr<T> Function()? _computation;
@@ -211,15 +207,13 @@ class _DelayedCancellableFuture<T> with Cancellable {
         _internalCompleter.completeError(e, stackTrace);
       }
     }
-    _cancellationToken?.detach(this);
+    detach();
   }
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
-    _internalCompleter.completeError(
-      cancelException,
-      stackTrace ?? StackTrace.current,
-    );
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    _internalCompleter.completeError(cancelException, cancellationStackTrace);
     _onCancelCallback?.call();
     _timer?.cancel();
   }

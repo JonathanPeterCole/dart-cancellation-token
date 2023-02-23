@@ -72,7 +72,7 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   /// If this token isn't attached to any other cancellables, it will also
   /// attach itself to the merged tokens.
   @override
-  void attach(Cancellable cancellable) {
+  void attachCancellable(Cancellable cancellable) {
     _updateCancellationStatus();
     assert(
       !isCancelled,
@@ -82,7 +82,7 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
     if (!isCancelled) {
       if (_attachedCancellables.isEmpty) {
         for (final CancellationToken token in _tokens) {
-          token.attach(this);
+          token.attachCancellable(this);
         }
       }
       if (!_attachedCancellables.contains(cancellable)) {
@@ -96,11 +96,11 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   /// If this token has no remaining attached cancellables after detaching,
   /// it will also detach itself from the merged tokens.
   @override
-  void detach(Cancellable cancellable) {
+  void detachCancellable(Cancellable cancellable) {
     if (!isCancelled) _attachedCancellables.remove(cancellable);
     if (_attachedCancellables.isEmpty) {
       for (final CancellationToken token in _tokens) {
-        token.detach(this);
+        token.detachCancellable(this);
       }
     }
   }
@@ -111,7 +111,8 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   /// Notifies all attached cancellables of the cancellation and detaches from
   /// the merged tokens.
   @override
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
     _isCancelled = true;
     _exception = cancelException;
     for (Cancellable cancellable in _attachedCancellables) {
@@ -119,7 +120,7 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
     }
     _attachedCancellables.clear();
     for (final CancellationToken token in _tokens) {
-      token.detach(this);
+      token.detachCancellable(this);
     }
   }
 

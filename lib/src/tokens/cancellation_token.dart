@@ -1,6 +1,7 @@
 import 'package:cancellation_token/src/cancellables/cancellable.dart';
 import 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
 import 'package:cancellation_token/src/tokens/merged_cancellation_token.dart';
+import 'package:meta/meta.dart';
 
 /// A token for controlling the cancellation of [Cancellable] operations.
 ///
@@ -87,6 +88,7 @@ class CancellationToken {
   /// Cancels all operations with this token.
   ///
   /// An optional [exception] can be provided to give a cancellation reason.
+  @mustCallSuper
   void cancel([Exception exception = const CancelledException()]) {
     if (_isCancelled) return;
     _isCancelled = true;
@@ -101,7 +103,8 @@ class CancellationToken {
   ///
   /// Before attaching to a [CancellationToken], you should check if it's
   /// already been cancelled by using [isCancelled].
-  void attach(Cancellable cancellable) {
+  @mustCallSuper
+  void attachCancellable(Cancellable cancellable) {
     assert(
       !isCancelled,
       'Attampted to attach to a $runtimeType that has already been cancelled.\n'
@@ -118,7 +121,8 @@ class CancellationToken {
   /// leaks. You should not call this inside a Cancellable's `onCancel` method,
   /// as attached Cancellables are detached automatically when a token is
   /// cancelled.
-  void detach(Cancellable cancellable) {
+  @mustCallSuper
+  void detachCancellable(Cancellable cancellable) {
     // Prevent modifications to the list whilst it's being iterated on by
     // ignoring detach calls if the token's been cancelled
     if (!isCancelled) _attachedCancellables.remove(cancellable);

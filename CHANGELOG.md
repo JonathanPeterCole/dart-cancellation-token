@@ -1,3 +1,42 @@
+## 2.0.0
+
+This release aims to make it easier to implement custom Cancellables and provide more useful stack traces when cancellations haven't been caught correctly. This includes some breaking changes for projects that use custom cancellables.
+
+* Added a `detach()` method to the `Cancellable` mixin.
+* **Breaking:** The  `.attach()` and `.detach()` methods on `CancellationToken` have been renamed to `.attachCancellable()` and `.detachCancellable()`.
+* **Breaking:** Overrides for methods in the `Cancellable` mixin must now call super.
+* **Breaking:** Removed the `[StackTrace? stackTrace]` parameter from the `Cancellable` mixin's `onCancel` method. Instead, use the new `cancellationStackTrace`, which returns the stack trace at the time the cancellable was created.
+
+
+### To migrate your custom cancellables:
+
+* Replace calls to `cancellationToken.attach(this)` with `maybeAttach(cancellationToken)`.
+* Replace calls to `cancellationToken.detach(this)` with `detach()`.
+* Update `onCancel()` overrides to call `super.onCancel()` and replace the `stackTrace` parameter with `cancellationStackTrace`:
+  ```dart
+  // Old
+
+  @override
+  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
+    _internalCompleter.completeError(
+      cancelException,
+      stackTrace ?? StackTrace.current,
+    );
+  }
+
+  // New
+
+  @override
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    _internalCompleter.completeError(cancelException, cancellationStackTrace);
+  }
+  ```
+
+### To migrate your custom cancellation tokens:
+
+* Rename the `.attach()` and `.detach()` methods to `.attachCancellable()` and `.detachCancellable()`.
+
 ## 1.6.1
 
 * Include Dart SDK license in license file.

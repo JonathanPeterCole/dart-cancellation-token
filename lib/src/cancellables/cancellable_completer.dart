@@ -8,6 +8,9 @@ import 'package:cancellation_token/src/types.dart';
 ///
 /// An optional `onCancel` callback can be provided to clean up resources when
 /// the completer is cancelled.
+///
+/// In an async method, avoid awaiting non-cancellable async operations before
+/// returning the completer's future.
 class CancellableCompleter<T> with Cancellable implements Completer<T> {
   CancellableCompleter(
     CancellationToken? cancellationToken, {
@@ -54,23 +57,21 @@ class CancellableCompleter<T> with Cancellable implements Completer<T> {
   @override
   void complete([FutureOr<T>? value]) {
     if (isCancelled) return;
-    _cancellationToken?.detach(this);
+    detach();
     _internalCompleter.complete(value);
   }
 
   @override
   void completeError(Object error, [StackTrace? stackTrace]) {
     if (isCancelled) return;
-    _cancellationToken?.detach(this);
+    detach();
     _internalCompleter.completeError(error, stackTrace);
   }
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
-    _internalCompleter.completeError(
-      cancelException,
-      stackTrace ?? StackTrace.current,
-    );
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    _internalCompleter.completeError(cancelException, cancellationStackTrace);
     _onCancelCallback?.call();
   }
 }

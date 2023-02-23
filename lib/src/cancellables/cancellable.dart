@@ -5,16 +5,51 @@ import 'package:meta/meta.dart';
 
 /// A mixin for making a class cancellable using a [CancellationToken].
 ///
-/// This does not handle attaching to and detatching from the token.
+/// To implement this mixin on a custom cancellable:
+/// * Call [maybeAttach] to attach to the token before starting async work.
+///   If `false` is returned, the token has already been cancelled and no async
+///   operations should be started.
+/// * Override [onCancel] to handle cancellation.
+/// * Call [detach] after all async operations complete.
 ///
-/// Classes using this mixin should call `maybeAttach(token)` to attach to the
-/// token when they're created, and call `token.detatch(this)` on the token once
-/// complete to prevent memory leaks.
+/// It's good practice to make any token parameters nullable to make
+/// cancellation optional.
 ///
-/// Cancellables can have nullable tokens to make them optionally cancellable.
-/// In these cases, you can call `maybeAttach(token)` as usual to attach to the
-/// token if there is one, and use `token?.detach(this)` to detach when done.
+/// ```dart
+/// class MyCancellable with Cancellable {
+///   MyCancellable(this.cancellationToken) {
+///     // Call `maybeAttach()` to only attach if the cancellation token hasn't
+///     // already been cancelled
+///     if (maybeAttach(this.cancellationToken)) {
+///       // Start your async task here
+///     }
+///   }
+///
+///   final CancellationToken cancellationToken;
+///
+///   @override
+///   void onCancel(Exception cancelException) {
+///     super.onCancel(exception);
+///     // Clean up resources here, like closing an HttpClient, and complete
+///     // any futures or streams
+///   }
+///
+///   void complete() {
+///     // If your async task completes before the token is cancelled,
+///     // detatch from the token
+///     detach();
+///   }
+/// }
+/// ```
 mixin Cancellable {
+  CancellationToken? _attachedToken;
+
+  /// The stack trace at the time this cancellable was created.
+  ///
+  /// This should be included when throwing on cancellation to make it easier
+  /// to identify uncaught cancellations.
+  final StackTrace cancellationStackTrace = StackTrace.current;
+
   /// Attaches to the [CancellationToken] only if it hasn't already been
   /// cancelled. If the token has already been cancelled, onCancel is called
   /// instead.
@@ -24,22 +59,36 @@ mixin Cancellable {
   /// Returns `false` if the token has already been cancelled and the async task
   /// should not continue.
   @protected
+  @mustCallSuper
   bool maybeAttach(CancellationToken? token) {
     if (token?.isCancelled ?? false) {
       // Schedule the cancellation as a microtask to prevent Futures completing
       // before error handlers are registered
-      final StackTrace trace = StackTrace.current;
-      scheduleMicrotask(() => onCancel(token!.exception, trace));
+      scheduleMicrotask(() => onCancel(token!.exception));
       return false;
     } else {
-      token?.attach(this);
+      _attachedToken = token;
+      _attachedToken?.attachCancellable(this);
       return true;
     }
+  }
+
+  /// Detatches from the [CancellationToken]. This should be called after
+  /// completing without cancellation.
+  @protected
+  @mustCallSuper
+  void detach() {
+    _attachedToken?.detachCancellable(this);
+    _attachedToken = null;
   }
 
   /// Called when the attached token is cancelled.
   ///
   /// It's not necessary to detach from the token in this method, as
-  /// cancellation tokens detach from all cancellables when cancelled.
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]);
+  /// cancellation tokens detach from all cancellables automatically when
+  /// cancelled.
+  @mustCallSuper
+  void onCancel(Exception cancelException) {
+    _attachedToken = null;
+  }
 }

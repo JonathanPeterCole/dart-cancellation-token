@@ -25,8 +25,8 @@ void main() {
     );
 
     mergedToken
-      ..attach(testCancellableA)
-      ..attach(testCancellableB)
+      ..attachCancellable(testCancellableA)
+      ..attachCancellable(testCancellableB)
       ..cancel(testException);
 
     expect(cancelledWithA, equals(testException));
@@ -47,8 +47,8 @@ void main() {
     );
 
     mergedToken
-      ..attach(testCancellableA)
-      ..attach(testCancellableB);
+      ..attachCancellable(testCancellableA)
+      ..attachCancellable(testCancellableB);
     tokenA.cancel(testException);
 
     expect(cancelledWithA, equals(testException));
@@ -60,7 +60,7 @@ void main() {
     final _TestCancellable testCancellable =
         _TestCancellable((exception) => cancelledCount++);
 
-    mergedToken.attach(testCancellable);
+    mergedToken.attachCancellable(testCancellable);
     tokenA.cancel();
     tokenB.cancel();
 
@@ -73,8 +73,8 @@ void main() {
         _TestCancellable((exception) => cancelled = false);
 
     mergedToken
-      ..attach(testCancellable)
-      ..detach(testCancellable);
+      ..attachCancellable(testCancellable)
+      ..detachCancellable(testCancellable);
     tokenA.cancel();
 
     expect(cancelled, isFalse);
@@ -83,11 +83,11 @@ void main() {
   test('detach calls are ignored for cancelled tokens', () {
     _TestCancellable? testCancellable;
     testCancellable = _TestCancellable(
-      (exception) => mergedToken.detach(testCancellable!),
+      (exception) => mergedToken.detachCancellable(testCancellable!),
     );
 
     mergedToken
-      ..attach(testCancellable)
+      ..attachCancellable(testCancellable)
       ..cancel();
   });
 
@@ -110,7 +110,7 @@ void main() {
 
       test('with attached cancellables', () {
         final _TestCancellable testCancellable = _TestCancellable((_) {});
-        mergedToken.attach(testCancellable);
+        mergedToken.attachCancellable(testCancellable);
 
         expect(mergedToken.isCancelled, isFalse);
 
@@ -131,7 +131,7 @@ void main() {
 
       test('with attached cancellables', () {
         final _TestCancellable testCancellable = _TestCancellable((_) {});
-        mergedToken.attach(testCancellable);
+        mergedToken.attachCancellable(testCancellable);
 
         expect(mergedToken.isCancelled, isFalse);
 
@@ -147,8 +147,8 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       mergedToken
-        ..attach(testCancellable)
-        ..detach(testCancellable);
+        ..attachCancellable(testCancellable)
+        ..detachCancellable(testCancellable);
 
       expect(mergedToken.hasCancellables, isFalse);
     });
@@ -157,7 +157,7 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       mergedToken
-        ..attach(testCancellable)
+        ..attachCancellable(testCancellable)
         ..cancel();
 
       expect(mergedToken.hasCancellables, isFalse);
@@ -166,7 +166,7 @@ void main() {
     test('returns false if one of the merged tokens was cancelled', () {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
-      mergedToken.attach(testCancellable);
+      mergedToken.attachCancellable(testCancellable);
       tokenA.cancel();
 
       expect(mergedToken.hasCancellables, isFalse);
@@ -175,7 +175,7 @@ void main() {
     test('returns true if there are attached cancellables', () {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
-      mergedToken.attach(testCancellable);
+      mergedToken.attachCancellable(testCancellable);
 
       expect(mergedToken.hasCancellables, isTrue);
     });
@@ -234,7 +234,7 @@ void main() {
   test('attaches to the merged tokens when a cancellable attaches', () {
     final _TestCancellable testCancellable = _TestCancellable((_) {});
 
-    mergedToken.attach(testCancellable);
+    mergedToken.attachCancellable(testCancellable);
 
     expect(tokenA.hasCancellables, isTrue);
     expect(tokenB.hasCancellables, isTrue);
@@ -246,8 +246,8 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       mergedToken
-        ..attach(testCancellable)
-        ..detach(testCancellable);
+        ..attachCancellable(testCancellable)
+        ..detachCancellable(testCancellable);
 
       expect(tokenA.hasCancellables, isFalse);
       expect(tokenB.hasCancellables, isFalse);
@@ -258,7 +258,7 @@ void main() {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
       mergedToken
-        ..attach(testCancellable)
+        ..attachCancellable(testCancellable)
         ..cancel();
 
       expect(tokenA.hasCancellables, isFalse);
@@ -269,7 +269,7 @@ void main() {
     test('when one of the merged tokens in cancelled', () {
       final _TestCancellable testCancellable = _TestCancellable((_) {});
 
-      mergedToken.attach(testCancellable);
+      mergedToken.attachCancellable(testCancellable);
       tokenA.cancel();
 
       expect(tokenA.hasCancellables, isFalse);
@@ -286,6 +286,8 @@ class _TestCancellable with Cancellable {
   final Function(Exception cancelException) onCancelCallback;
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? trace]) =>
-      onCancelCallback(cancelException);
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
+    onCancelCallback(cancelException);
+  }
 }
