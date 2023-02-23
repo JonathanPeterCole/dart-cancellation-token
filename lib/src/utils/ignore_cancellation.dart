@@ -13,7 +13,7 @@ import 'package:cancellation_token/cancellation_token.dart';
 ///
 /// ```dart
 /// try {
-///   ignoreCancellation(() async {
+///   await ignoreCancellation(() async {
 ///     response = await apiEndpoint().asCancellable(cancellationToken);
 ///   });
 /// } catch (e, stackTrace) {
