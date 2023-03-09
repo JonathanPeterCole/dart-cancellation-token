@@ -45,38 +45,27 @@ import 'package:meta/meta.dart';
 ///  * [TimeoutCancellationToken], a [CancellationToken] that automatically
 ///    cancels after a given duration.
 class CancellationToken {
-  /// Whether or not this token has been cancelled.
-  bool _isCancelled = false;
-
-  /// The exception given when this token was cancelled.
-  Exception? _exception;
+  /// The exception given when this token was cancelled, or null if the token
+  /// hasn't been cancelled yet.
+  Exception? _cancelledException;
 
   /// The internal collection of [Cancellable] operations currently listening to
   /// this token.
   final List<Cancellable> _attachedCancellables = [];
 
   /// Whether or not the token has been cancelled.
-  bool get isCancelled => _isCancelled;
+  bool get isCancelled => _cancelledException != null;
+
+  /// The exception given when the token was cancelled.
+  ///
+  /// Returns null if the token hasn't been cancelled yet.
+  Exception? get exception => _cancelledException;
 
   /// Whether or not the token has any attached cancellables.
   ///
   /// This is useful when testing a custom Cancellable to ensure it detatches
   /// from the token after completing.
   bool get hasCancellables => _attachedCancellables.isNotEmpty;
-
-  /// The exception given when the token was cancelled.
-  ///
-  /// On debug builds this will throw an exception if the token hasn't been
-  /// called yet. On release builds a fallback [CancelledException] will be
-  /// returned to prevent unexpected exceptions.
-  Exception get exception {
-    assert(
-      isCancelled,
-      'Attempted to get the cancellation exception of a $runtimeType that '
-      'hasn\'t been cancelled yet.',
-    );
-    return _exception ??= CancelledException();
-  }
 
   /// Merges this [CancellationToken] with another to create a single token
   /// that will be cancelled when either token is cancelled.
@@ -90,9 +79,8 @@ class CancellationToken {
   /// An optional [exception] can be provided to give a cancellation reason.
   @mustCallSuper
   void cancel([Exception exception = const CancelledException()]) {
-    if (_isCancelled) return;
-    _isCancelled = true;
-    _exception = exception;
+    if (isCancelled) return;
+    _cancelledException = exception;
     for (Cancellable cancellable in _attachedCancellables) {
       cancellable.onCancel(exception);
     }
@@ -108,7 +96,8 @@ class CancellationToken {
     assert(
       !isCancelled,
       'Attampted to attach to a $runtimeType that has already been cancelled.\n'
-      'Before calling attach() you should check isCancelled.',
+      'Check isCancelled or use the CancellableMixin\'s maybeAttach() method '
+      'to check if the token\'s already been cancelled before attaching to it.',
     );
     if (!isCancelled && !_attachedCancellables.contains(cancellable)) {
       _attachedCancellables.add(cancellable);

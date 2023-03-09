@@ -59,8 +59,9 @@ class TimeoutCancellationToken extends CancellationToken {
     if (!isCancelled) {
       cancel(_timeoutException ??
           TimeoutException(
-              '$runtimeType timed out after ${_duration.inSeconds} seconds',
-              _duration));
+            'The TimeoutCancellationToken timeout duration ended.',
+            _duration,
+          ));
     }
   }
 }

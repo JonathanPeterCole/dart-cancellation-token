@@ -32,7 +32,7 @@ class CancellableFuture<T> {
     OnCancelCallback? onCancel,
   }) {
     if (cancellationToken?.isCancelled ?? false) {
-      return Future<T>.error(cancellationToken!.exception);
+      return Future<T>.error(cancellationToken!.exception!);
     } else {
       return CancellableFuture<T>._(
         Future(computation),
@@ -55,7 +55,7 @@ class CancellableFuture<T> {
     OnCancelCallback? onCancel,
   }) {
     if (cancellationToken?.isCancelled ?? false) {
-      return Future<T>.error(cancellationToken!.exception);
+      return Future<T>.error(cancellationToken!.exception!);
     } else {
       return CancellableFuture<T>._(
         Future.microtask(computation),
@@ -78,7 +78,7 @@ class CancellableFuture<T> {
     OnCancelCallback? onCancel,
   }) {
     if (cancellationToken?.isCancelled ?? false) {
-      return Future<T>.error(cancellationToken!.exception);
+      return Future<T>.error(cancellationToken!.exception!);
     } else {
       return CancellableFuture<T>._(
         Future.sync(computation),

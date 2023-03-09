@@ -16,38 +16,28 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
 
   final List<CancellationToken> _tokens;
   final List<Cancellable> _attachedCancellables = [];
-  bool _isCancelled = false;
-  Exception? _exception;
+  Exception? _cancelledException;
 
   @override
   bool get hasCancellables => _attachedCancellables.isNotEmpty;
 
   /// Whether or not any of the merged tokens have been cancelled.
   @override
-  bool get isCancelled {
-    _updateCancellationStatus();
-    return _isCancelled;
-  }
+  bool get isCancelled =>
+      _cancelledException != null || _tokens.any((token) => token.isCancelled);
 
   /// The exception given when one of the merged tokens was cancelled.
   ///
-  /// On debug builds this will throw an exception if the token hasn't been
-  /// called yet. On release builds a fallback [CancelledException] will be
-  /// returned to prevent unexpected exceptions.
+  /// Returns null if none of the merged tokens have been cancelled yet.
   ///
   /// If the [MergedCancellationToken] wasn't attached to any cancellables at
   /// the time of cancellation, this will return the exception of the first
   /// cancelled token in the list of merged tokens. Otherwise, the exception
   /// from the merged token that was cancelled first will be used.
   @override
-  Exception get exception {
+  Exception? get exception {
     _updateCancellationStatus();
-    assert(
-      isCancelled,
-      'Attempted to get the cancellation exception of a $runtimeType that '
-      'hasn\'t been cancelled yet.',
-    );
-    return _exception ?? CancelledException();
+    return _cancelledException;
   }
 
   /// Merges this [CancellationToken] with another to create a single token
@@ -63,7 +53,7 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   /// This does not affect the merged tokens.
   @override
   void cancel([Exception exception = const CancelledException()]) {
-    if (_isCancelled) return;
+    if (isCancelled) return;
     onCancel(exception);
   }
 
@@ -113,10 +103,9 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   @override
   void onCancel(Exception cancelException) {
     super.onCancel(cancelException);
-    _isCancelled = true;
-    _exception = cancelException;
+    _cancelledException = cancelException;
     for (Cancellable cancellable in _attachedCancellables) {
-      cancellable.onCancel(exception);
+      cancellable.onCancel(exception!);
     }
     _attachedCancellables.clear();
     for (final CancellationToken token in _tokens) {
@@ -127,12 +116,11 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   /// Checks if the cancellation status has changed for any of the merged
   /// tokens.
   void _updateCancellationStatus() {
-    if (_isCancelled) return;
+    if (_cancelledException != null) return;
     final CancellationToken? cancelledToken =
         _tokens.firstWhereOrNull((token) => token.isCancelled);
     if (cancelledToken != null) {
-      _isCancelled = true;
-      _exception = cancelledToken.exception;
+      _cancelledException = cancelledToken.exception;
     }
   }
 }

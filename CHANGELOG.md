@@ -4,6 +4,7 @@ This release aims to make it easier to implement custom Cancellables and provide
 
 * Added a `detach()` method to the `Cancellable` mixin.
 * **Breaking:** The  `.attach()` and `.detach()` methods on `CancellationToken` have been renamed to `.attachCancellable()` and `.detachCancellable()`.
+* **Breaking:** The `.exception` getter on `CancellationToken` now returns null if the token hasn't been cancelled yet.
 * **Breaking:** Overrides for methods in the `Cancellable` mixin must now call super.
 * **Breaking:** Removed the `[StackTrace? stackTrace]` parameter from the `Cancellable` mixin's `onCancel` method. Instead, use the new `cancellationStackTrace`, which returns the stack trace at the time the cancellable was created.
 

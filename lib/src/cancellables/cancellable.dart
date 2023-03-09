@@ -50,6 +50,9 @@ mixin Cancellable {
   /// to identify uncaught cancellations.
   final StackTrace cancellationStackTrace = StackTrace.current;
 
+  /// Whether or not the operation has been cancelled.
+  bool get isCancelled => _attachedToken?.isCancelled ?? false;
+
   /// Attaches to the [CancellationToken] only if it hasn't already been
   /// cancelled. If the token has already been cancelled, onCancel is called
   /// instead.
@@ -64,7 +67,7 @@ mixin Cancellable {
     if (token?.isCancelled ?? false) {
       // Schedule the cancellation as a microtask to prevent Futures completing
       // before error handlers are registered
-      scheduleMicrotask(() => onCancel(token!.exception));
+      scheduleMicrotask(() => onCancel(token!.exception!));
       return false;
     } else {
       _attachedToken = token;
