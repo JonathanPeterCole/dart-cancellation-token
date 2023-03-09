@@ -43,6 +43,7 @@ import 'package:meta/meta.dart';
 /// ```
 mixin Cancellable {
   CancellationToken? _attachedToken;
+  bool _isCancelled = false;
 
   /// The stack trace at the time this cancellable was created.
   ///
@@ -51,7 +52,7 @@ mixin Cancellable {
   final StackTrace cancellationStackTrace = StackTrace.current;
 
   /// Whether or not the operation has been cancelled.
-  bool get isCancelled => _attachedToken?.isCancelled ?? false;
+  bool get isCancelled => _isCancelled;
 
   /// Attaches to the [CancellationToken] only if it hasn't already been
   /// cancelled. If the token has already been cancelled, onCancel is called
@@ -64,7 +65,8 @@ mixin Cancellable {
   @protected
   @mustCallSuper
   bool maybeAttach(CancellationToken? token) {
-    if (token?.isCancelled ?? false) {
+    _isCancelled = token?.isCancelled ?? false;
+    if (isCancelled) {
       // Schedule the cancellation as a microtask to prevent Futures completing
       // before error handlers are registered
       scheduleMicrotask(() => onCancel(token!.exception!));
@@ -93,5 +95,6 @@ mixin Cancellable {
   @mustCallSuper
   void onCancel(Exception cancelException) {
     _attachedToken = null;
+    _isCancelled = true;
   }
 }
