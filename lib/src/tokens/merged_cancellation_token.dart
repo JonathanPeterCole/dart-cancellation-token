@@ -14,8 +14,16 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
     _updateCancellationStatus();
   }
 
+  /// The child tokens that were merged to create this token.
   final List<CancellationToken> _tokens;
+
+  /// The cancellable operations currently attached to this token.
   final List<Cancellable> _attachedCancellables = [];
+
+  /// The cancellation exception thrown by this token.
+  ///
+  /// Unlike [exception], checking if this is null is not a reliable way to
+  /// check if the token's been cancelled.
   Exception? _cancelledException;
 
   @override
@@ -23,8 +31,10 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
 
   /// Whether or not any of the merged tokens have been cancelled.
   @override
-  bool get isCancelled =>
-      _cancelledException != null || _tokens.any((token) => token.isCancelled);
+  bool get isCancelled {
+    _updateCancellationStatus();
+    return _cancelledException != null;
+  }
 
   /// The exception given when one of the merged tokens was cancelled.
   ///
@@ -52,9 +62,18 @@ class MergedCancellationToken with Cancellable implements CancellationToken {
   ///
   /// This does not affect the merged tokens.
   @override
-  void cancel([Exception exception = const CancelledException()]) {
+  void cancel([Exception? exception]) {
     if (isCancelled) return;
-    onCancel(exception);
+    onCancel(exception ?? CancelledException());
+  }
+
+  /// Cancels all operations using this token with a [CancelledException] that
+  /// includes the given [reason].
+  ///
+  /// This does not affect the merged tokens.
+  @override
+  void cancelWithReason(String? reason) {
+    cancel(CancelledException(cancellationReason: reason));
   }
 
   /// Attaches a [Cancellable] to this token.

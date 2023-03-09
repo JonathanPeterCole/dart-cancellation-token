@@ -74,17 +74,29 @@ class CancellationToken {
   MergedCancellationToken merge(CancellationToken other) =>
       MergedCancellationToken([this, other]);
 
-  /// Cancels all operations with this token.
+  /// Cancels all operations using this token.
+  ///
+  /// By default, the token will be cancelled with a [CancelledException] which
+  /// includes [debugLabel]. To override this behaviour, pass a custom
+  /// [exception].
   ///
   /// An optional [exception] can be provided to give a cancellation reason.
   @mustCallSuper
-  void cancel([Exception exception = const CancelledException()]) {
+  void cancel([Exception? exception]) {
     if (isCancelled) return;
+    exception ??= const CancelledException();
     _cancelledException = exception;
     for (Cancellable cancellable in _attachedCancellables) {
       cancellable.onCancel(exception);
     }
     _attachedCancellables.clear();
+  }
+
+  /// A convenience method for cancelling the token with a [CancelledException]
+  /// that includes the reason for cancellation.
+  @mustCallSuper
+  void cancelWithReason(String? cancellationReason) {
+    cancel(CancelledException(cancellationReason: cancellationReason));
   }
 
   /// Attaches a [Cancellable] to this token.

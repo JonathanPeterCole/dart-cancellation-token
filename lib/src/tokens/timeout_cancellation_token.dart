@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cancellation_token/src/cancellables/cancellable.dart';
-import 'package:cancellation_token/src/exceptions/cancelled_exception.dart';
 import 'package:cancellation_token/src/tokens/cancellation_token.dart';
 
 /// A [CancellationToken] that automatically cancels after a given duration.
@@ -39,7 +38,7 @@ class TimeoutCancellationToken extends CancellationToken {
   ///
   /// An optional [exception] can be provided to give a cancellation reason.
   @override
-  void cancel([Exception exception = const CancelledException()]) {
+  void cancel([Exception? exception]) {
     _timer?.cancel();
     super.cancel(exception);
   }
