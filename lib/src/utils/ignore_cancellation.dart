@@ -28,7 +28,7 @@ import 'package:cancellation_token/cancellation_token.dart';
 ///   () async {
 ///     response = await apiEndpoint().asCancellable(cancellationToken);
 ///   },
-///   catchError: (e, stackTrace) {
+///   onError: (e, stackTrace) {
 ///     // This is the equivalent of a catch block
 ///   },
 ///   whenComplete: () {
@@ -52,9 +52,15 @@ Future<void> ignoreCancellation(
   } on CancelledException {
     // Ignore cancellation
   } catch (e, stackTrace) {
-    if (onError == null) rethrow;
-    await onError(e, stackTrace);
-    await whenComplete?.call();
+    try {
+      if (onError != null) {
+        await onError.call(e, stackTrace);
+      } else {
+        rethrow;
+      }
+    } finally {
+      await whenComplete?.call();
+    }
   } finally {
     await whenCompleteOrCancelled?.call();
   }
