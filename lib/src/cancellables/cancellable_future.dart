@@ -11,8 +11,7 @@ class CancellableFuture<T> {
     FutureOr<T> future,
     CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
-  })  : _internalFuture = future,
-        _completer = CancellableCompleter.sync(
+  }) : _completer = CancellableCompleter.sync(
           cancellationToken,
           onCancel: onCancel,
         ) {
@@ -134,9 +133,6 @@ class CancellableFuture<T> {
         onCancel,
       ).future;
 
-  /// The internal future that is being made cancellable.
-  final FutureOr<T> _internalFuture;
-
   /// The completer that handles the cancellation.
   final CancellableCompleter<T> _completer;
 
@@ -147,7 +143,7 @@ class CancellableFuture<T> {
   Future<void> _run(FutureOr<T> future) async {
     if (_isCancelled) return;
     try {
-      final T result = await _internalFuture;
+      final T result = await future;
       if (!_isCancelled) _completer.complete(result);
     } catch (e, stackTrace) {
       if (!_isCancelled) _completer.completeError(e, stackTrace);
