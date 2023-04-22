@@ -64,14 +64,13 @@ void main() {
       final CancellationToken token = CancellationToken();
       final Exception testException = _TestException();
 
-      try {
-        await CancellableIsolate.run(
+      await expectLater(
+        CancellableIsolate.run(
           () => _errorIsolateTest(testException),
           null,
-        );
-      } catch (e) {
-        //
-      }
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -90,12 +89,14 @@ void main() {
       test('when cancelled after attaching', () {
         final CancellationToken token = CancellationToken();
         final String testString = 'Test string';
-        final Future<String> result = CancellableIsolate.run(
-          () => _infiniteLoopIsolateTest(testString),
-          token,
-        );
 
-        expect(result, throwsA(isA<CancelledException>()));
+        expect(
+          CancellableIsolate.run(
+            () => _infiniteLoopIsolateTest(testString),
+            token,
+          ),
+          throwsA(isA<CancelledException>()),
+        );
 
         token.cancel();
       });

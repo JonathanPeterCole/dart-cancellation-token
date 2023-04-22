@@ -41,11 +41,10 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await cancellableFutureOr(() => throw _TestException(), token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        cancellableFutureOr(() => throw _TestException(), token),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -100,11 +99,10 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await cancellableFutureOr(() => Future.error(_TestException()), token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        cancellableFutureOr(() => Future.error(_TestException()), token),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -114,11 +112,10 @@ void main() {
     final CancellationToken token = CancellationToken()..cancel();
 
     bool callbackRun = false;
-    try {
-      await cancellableFutureOr(() => callbackRun = true, token);
-    } catch (e) {
-      //
-    }
+    await expectLater(
+      cancellableFutureOr(() => callbackRun = true, token),
+      throwsA(isA<CancelledException>()),
+    );
 
     expect(callbackRun, isFalse);
   });

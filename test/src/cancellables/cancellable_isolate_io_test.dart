@@ -65,14 +65,13 @@ void main() {
       final CancellationToken token = CancellationToken();
       final Exception testException = _TestException();
 
-      try {
-        await CancellableIsolate.run(
+      await expectLater(
+        CancellableIsolate.run(
           () => _errorIsolateTest(testException),
           null,
-        );
-      } catch (e) {
-        //
-      }
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });

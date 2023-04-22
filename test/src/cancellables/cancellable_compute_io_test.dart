@@ -1,6 +1,5 @@
 @TestOn('vm')
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -59,11 +58,10 @@ void main() {
     final CancellationToken token = CancellationToken();
     final Exception testException = _TestException();
 
-    try {
-      await cancellableCompute(_errorIsolateTest, testException, null);
-    } catch (e) {
-      //
-    }
+    await expectLater(
+      cancellableCompute(_errorIsolateTest, testException, null),
+      throwsA(isA<_TestException>()),
+    );
 
     expect(token.hasCancellables, isFalse);
   });
@@ -80,10 +78,11 @@ void main() {
 
     test('when cancelled after attaching', () {
       final CancellationToken token = CancellationToken();
-      final Future<String> result =
-          cancellableCompute(_infiniteLoopIsolateTest, 'Test string', token);
 
-      expect(result, throwsA(isA<CancelledException>()));
+      expect(
+        cancellableCompute(_infiniteLoopIsolateTest, 'Test string', token),
+        throwsA(isA<CancelledException>()),
+      );
 
       token.cancel();
     });

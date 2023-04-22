@@ -8,6 +8,7 @@ This release aims to make it easier to implement custom Cancellables and provide
 * Cancellation stack traces now show the call stack leading up to the operation that was cancelled, rather than the call stack leading up to the token's cancellation. This should make it easier to identify the origin of uncaught cancellation exceptions.
 * Added a `.detach()` method to the `Cancellable` mixin. When paired with `.maybeAttach()`, this will detach your cancellable from the token.
 * Fixed a bug where the `ignoreCancellation()` wouldn't call `whenComplete` if `onError` threw an exception.
+* Fixed a bug where `asCancellable()` could result in uncaught exceptions.
 * **Breaking:** The `CancellationToken.attach()` and `.detach()` methods have been renamed to `.attachCancellable()` and `.detachCancellable()`.
 * **Breaking:** The `CancellationToken.exception` getter now returns null if the token hasn't been cancelled yet.
 * **Breaking:** The `CancellationToken.cancel()` method's `exception` parameter is now nullable.

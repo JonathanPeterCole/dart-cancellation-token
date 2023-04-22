@@ -141,7 +141,12 @@ class CancellableFuture<T> {
 
   /// Runs the future and handles the result.
   Future<void> _run(FutureOr<T> future) async {
-    if (_isCancelled) return;
+    // If cancelled, ignore the future to avoid uncaught exceptions
+    if (_isCancelled) {
+      if (future is Future<T>) future.ignore();
+      return;
+    }
+    // If not cancelled, await and handle the result
     try {
       final T result = await future;
       if (!_isCancelled) _completer.complete(result);

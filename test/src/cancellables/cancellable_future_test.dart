@@ -74,11 +74,10 @@ void main() {
       final CancellationToken token = CancellationToken()..cancel();
 
       bool callbackRun = false;
-      try {
-        await CancellableFuture.from(() => callbackRun = true, token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        CancellableFuture.from(() => callbackRun = true, token),
+        throwsA(isA<CancelledException>()),
+      );
 
       expect(callbackRun, isFalse);
     });
@@ -107,14 +106,13 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await CancellableFuture.from(
+      await expectLater(
+        CancellableFuture.from(
           () => Future.error(_TestException()),
           token,
-        );
-      } catch (e) {
-        //
-      }
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -133,7 +131,9 @@ void main() {
       final CancellationToken token = CancellationToken();
       expect(
         CancellableFuture.microtask(
-            () => Future.error(_TestException()), token),
+          () => Future.error(_TestException()),
+          token,
+        ),
         throwsA(isA<_TestException>()),
       );
     });
@@ -150,11 +150,10 @@ void main() {
       final CancellationToken token = CancellationToken()..cancel();
 
       bool callbackRun = false;
-      try {
-        await CancellableFuture.microtask(() => callbackRun = true, token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        CancellableFuture.microtask(() => callbackRun = true, token),
+        throwsA(isA<CancelledException>()),
+      );
 
       expect(callbackRun, isFalse);
     });
@@ -174,8 +173,11 @@ void main() {
     test('detaches from the cancellation token after completing with a value',
         () async {
       final CancellationToken token = CancellationToken();
-      await CancellableFuture.microtask(
-          () => Future.value('Test value'), token);
+
+      await expectLater(
+        CancellableFuture.microtask(() => Future.value('Test value'), token),
+        completes,
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -184,14 +186,13 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await CancellableFuture.microtask(
+      await expectLater(
+        CancellableFuture.microtask(
           () => Future.error(_TestException()),
           token,
-        );
-      } catch (e) {
-        //
-      }
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -226,11 +227,10 @@ void main() {
       final CancellationToken token = CancellationToken()..cancel();
 
       bool callbackRun = false;
-      try {
-        await CancellableFuture.sync(() => callbackRun = true, token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        CancellableFuture.sync(() => callbackRun = true, token),
+        throwsA(isA<CancelledException>()),
+      );
 
       expect(callbackRun, isFalse);
     });
@@ -259,14 +259,13 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await CancellableFuture.sync(
+      await expectLater(
+        CancellableFuture.sync(
           () => Future.error(_TestException()),
           token,
-        );
-      } catch (e) {
-        //
-      }
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -321,11 +320,13 @@ void main() {
         () async {
       final CancellationToken token = CancellationToken();
 
-      try {
-        await CancellableFuture.value(Future.error(_TestException()), token);
-      } catch (e) {
-        //
-      }
+      await expectLater(
+        CancellableFuture.value(
+          Future.error(_TestException()),
+          token,
+        ),
+        throwsA(isA<_TestException>()),
+      );
 
       expect(token.hasCancellables, isFalse);
     });
@@ -383,13 +384,14 @@ void main() {
       final CancellationToken token = CancellationToken()..cancel();
 
       bool computationRun = false;
-      await ignoreCancellation(() {
-        return CancellableFuture.delayed(
+      await expectLater(
+        CancellableFuture.delayed(
           Duration(seconds: 5),
           token,
           () => computationRun = true,
-        );
-      });
+        ),
+        throwsA(isA<CancelledException>()),
+      );
 
       expect(computationRun, isFalse);
     });

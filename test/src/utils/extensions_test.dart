@@ -8,31 +8,27 @@ void main() {
     group('asCancellable()', () {
       test('completes with normal value if not cancelled', () {
         final CancellationToken token = CancellationToken();
-        final Future<String> testFuture = Future<String>.value('Test value');
 
         expect(
-          testFuture.asCancellable(token),
+          Future<String>.value('Test value').asCancellable(token),
           completion(equals('Test value')),
         );
       });
 
       test('completes with normal exception if not cancelled', () {
         final CancellationToken token = CancellationToken();
-        final Future<String> testFuture =
-            Future<String>.error(_TestException());
 
         expect(
-          testFuture.asCancellable(token),
+          Future<String>.error(_TestException()).asCancellable(token),
           throwsA(isA<_TestException>()),
         );
       });
 
       test('completes with CancelledException if cancelled before attach', () {
         final CancellationToken token = CancellationToken()..cancel();
-        final Future<String> testFuture = Future<String>.value('Test value');
 
         expect(
-          testFuture.asCancellable(token),
+          Future<String>.error(Exception()).asCancellable(token),
           throwsA(isA<CancelledException>()),
         );
       });
@@ -40,10 +36,11 @@ void main() {
       test('completes with CancelledException if cancelled after attach', () {
         final CancellationToken token = CancellationToken();
         final Completer<String> completer = Completer<String>();
-        final Future<String> cancellableFuture =
-            completer.future.asCancellable(token);
 
-        expect(cancellableFuture, throwsA(isA<CancelledException>()));
+        expect(
+          completer.future.asCancellable(token),
+          throwsA(isA<CancelledException>()),
+        );
 
         token.cancel();
       });
@@ -51,9 +48,11 @@ void main() {
       test('detaches from the cancellation token after completing with a value',
           () async {
         final CancellationToken token = CancellationToken();
-        final Future<String> testFuture = Future<String>.value('Test value');
 
-        await testFuture.asCancellable(token);
+        await expectLater(
+          Future<String>.value('Test value').asCancellable(token),
+          completes,
+        );
 
         expect(token.hasCancellables, isFalse);
       });
@@ -62,14 +61,11 @@ void main() {
           'detaches from the cancellation token after completing with an error',
           () async {
         final CancellationToken token = CancellationToken();
-        final Future<String> testFuture =
-            Future<String>.error(_TestException());
 
-        try {
-          await testFuture.asCancellable(token);
-        } catch (e) {
-          //
-        }
+        await expectLater(
+          Future<String>.error(_TestException()).asCancellable(token),
+          throwsA(isA<_TestException>()),
+        );
 
         expect(token.hasCancellables, isFalse);
       });
