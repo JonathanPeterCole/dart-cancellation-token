@@ -76,11 +76,10 @@ class CancellationToken {
 
   /// Cancels all operations using this token.
   ///
-  /// By default, the token will be cancelled with a [CancelledException] which
-  /// includes [debugLabel]. To override this behaviour, pass a custom
-  /// [exception].
+  /// By default, the token will be cancelled with a [CancelledException]. To
+  /// override this behaviour, pass a custom [exception].
   ///
-  /// An optional [exception] can be provided to give a cancellation reason.
+  /// To include a reason for the cancellation, use [cancelWithReason].
   @mustCallSuper
   void cancel([Exception? exception]) {
     if (isCancelled) return;
