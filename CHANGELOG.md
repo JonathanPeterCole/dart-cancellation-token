@@ -1,7 +1,6 @@
 ## 2.0.0
 
-This release aims to make it easier to implement custom Cancellables and provide more useful information for debugging. This includes some breaking changes for projects that use custom cancellables, but other projects should be unaffected.
-
+This release aims to make it easier to implement custom Cancellables and provide more useful information for debugging. 
 
 * Added a `.cancelWithReason()` method to `CancellationToken` for a convenient way to set provide a cancellation reason for debugging.
 * `CancelledException` now overrides `.toString()` to give a more useful message for debugging, including the cancellation reason.
@@ -9,11 +8,15 @@ This release aims to make it easier to implement custom Cancellables and provide
 * Added a `.detach()` method to the `Cancellable` mixin. When paired with `.maybeAttach()`, this will detach your cancellable from the token.
 * Fixed a bug where the `ignoreCancellation()` wouldn't call `whenComplete` if `onError` threw an exception.
 * Fixed a bug where `asCancellable()` could result in uncaught exceptions.
-* **Breaking:** The `CancellationToken.attach()` and `.detach()` methods have been renamed to `.attachCancellable()` and `.detachCancellable()`.
-* **Breaking:** The `CancellationToken.exception` getter now returns null if the token hasn't been cancelled yet.
-* **Breaking:** The `CancellationToken.cancel()` method's `exception` parameter is now nullable.
-* **Breaking:** Removed the `[StackTrace? stackTrace]` parameter from the `Cancellable` mixin's `onCancel` method. Instead, use the new `cancellationStackTrace`, which returns the stack trace at the time the cancellable was created.
-* **Breaking:** Overrides for methods in the `Cancellable` mixin must now call super.
+
+### Breaking changes
+These changes are isolated to projects using custom cancellables or cancellation tokens. Other projects are unaffected.
+
+* The `CancellationToken.attach()` and `.detach()` methods have been renamed to `.attachCancellable()` and `.detachCancellable()`.
+* The `CancellationToken.exception` getter now returns null if the token hasn't been cancelled yet.
+* The `CancellationToken.cancel()` method's `exception` parameter is now nullable, rather than using a default value.
+* Removed the `[StackTrace? stackTrace]` parameter from the `Cancellable` mixin's `onCancel` method. Instead, use the new `cancellationStackTrace`, which returns the stack trace at the time the cancellable was created.
+* Overridden `Cancellable` mixin methods must now call super.
 
 ### To migrate your custom cancellation tokens:
 
@@ -32,7 +35,7 @@ This release aims to make it easier to implement custom Cancellables and provide
 
 * Replace calls to `cancellationToken.attach(this)` with `maybeAttach(cancellationToken)`.
 * Replace calls to `cancellationToken.detach(this)` with `detach()`.
-* Update `onCancel()` overrides to call `super.onCancel()` and replace the `stackTrace` parameter with `cancellationStackTrace`:
+* Update `onCancel()` overrides to call `super.onCancel()` and remove the `stackTrace` parameter. To get the stack trace, use `cancellationStackTrace` instead:
   ```dart
   // Old
   @override

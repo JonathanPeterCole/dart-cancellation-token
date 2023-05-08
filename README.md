@@ -27,8 +27,7 @@ When a TimeoutCancellationToken is created, the timer will begin immediately. To
 
 To combine multiple tokens together, you can use a MergedCancellationToken. To create one, use the `MergedCancellationToken()` constructor, or use the `.merge()` shortcut method on an existing token.
 
-> #### Caveats
-> When using a MergedCancellationToken, the cancellation exception thrown isn't guaranteed to be from the token that was cancelled first. If no cancellable operations were running when the tokens were cancelled, the exception from the first token in the list will be used. When using the `.merge()` shortcut, this is the token on which you called `.merge()`.
+Note that when using a MergedCancellationToken, the cancellation exception isn't guaranteed to be from the token that was cancelled first. If no cancellable operations were running when the tokens were cancelled, the exception from the first token in the list will be used. When using the `.merge()` shortcut, this is the token on which you called `.merge()`.
 
 
 ## Usage
@@ -118,30 +117,70 @@ final ChunkyApiResponse response = await CancellableIsolate.run(
 
 ### Cancellable HTTP
 
-For HTTP requests with cancellation support, check out the [Cancellation Token HTTP](https://pub.dev/packages/cancellation_token_http) package, a fork of the Dart HTTP package with the request cancellation powered by this package. If HTTP request cancellation is all you need, the package can be used standalone, but it's most powerful when paired when other cancellables like `cancellableCompute`.
+For HTTP requests with cancellation support, check out the [Cancellation Token HTTP](https://pub.dev/packages/cancellation_token_http) package, a fork of the Dart HTTP package with request cancellation. If HTTP request cancellation is all you need, the package can be used standalone, but it's most powerful when paired when other cancellables like `cancellableCompute`.
 
 ```dart
-import 'package:cancellation_token_http/http.dart' as http;
-
-CancellationToken? cancellationToken;
-
-Future<ChunkyApiResponse> makeRequest() async {
-  // Cancel the request if it's already in progress
-  cancellationToken?.cancel();
-  // Create a CancellationToken for the new request
-  cancellationToken = CancellationToken();
-  // Make the cancellable request and parse the JSON in a cancellable isolate
+/// This function calls an API and parses the response 
+Future<ChunkyApiResponse> makeRequest({
+  CancellationToken? cancellationToken,
+}) async {
   final http.Response response = await http.get(
     Uri.parse('https://example.com/bigjson'),
     cancellationToken: token,
   );
-  return await cancellableCompute(parseJson, response.body, cancellationToken);
+  return await CancellableIsolate.run(
+    () {
+      final Map<String, dynamic> decodedJson = jsonDecode(response.body);
+      return ChunkyApiResponse.fromJson(decodedJson);
+    },
+    cancellationToken
+  );
 }
 ```
 
 ### Custom Cancellables
 
-The Cancellable mixin can be used to make your own cancellables. This might be useful for custom I/O libraries, like a custom HTTP library.
+If you don't need to clean up resources, like cancelling a network request, when your operation is cancelled, `CancellableFuture.from()` and `.asCancellable()` should have you covered with no need for a custom cancellable.
+
+* `CancellableFuture.from()` allows you to wrap an async computation to make it cancellable. If the CancellationToken is cancelled before it runs, the computation will never be started.
+* The `.asCancellable()` extension allows you to apply cancellation to an existing Future, but the Future will always run, even if the CancellationToken has already been cancelled.
+
+In cases where you *do* want to clean up resources, you can create a custom cancellable:
+
+#### Using CancellableCompleter
+
+In most cases, `CancellableCompleter` will suffice for creating custom cancellables.
+
+* **DO** release resources after cancellation if possible, using the `onCancel` callback. If you can't release resources, consider wrapping your function with `CancellableFuture.from()` instead.
+* **DON'T** await any futures before returning the completer's future.
+* **DON'T** start any async work if the token was already cancelled.
+
+```dart
+Future<String> myCancellable({CancellationToken? cancellationToken}) {
+  MyAsyncOperation? myAsyncOperation;
+  final CancellableCompleter<R> completer = CancellableCompleter<R>(
+    cancellationToken,
+    onCancel: () => myAsyncOperation?.cancel(),
+  );
+  // Only attempt to create the receive port and start the isolate if the token
+  // hasn't already been cancelled
+  if (cancellationToken?.isCancelled != true) {
+    myAsyncOperation = MyAsyncOperation();
+    myAsyncOperation.start().then(
+      (result) => completer.complete(result),
+      onError: (error, stackTrace) => completer.completeError(
+        error, 
+        stackTrace,
+      )
+    );
+  }
+  return completer.future;
+}
+```
+
+#### Using the Cancellable mixin
+
+For more complex cancellables, you can use the Cancellable mixin.
 
 * **DO** detach from the CancellationToken when your async task completes.
 * **DON'T** attach to a CancellationToken that has already been cancelled, instead use the `maybeAttach` method to check if it's already been cancelled and only start your async task if it returns `false.
@@ -149,7 +188,8 @@ The Cancellable mixin can be used to make your own cancellables. This might be u
 
 ```dart
 class MyCancellable with Cancellable {
-  MyCancellable(this.cancellationToken) {
+  MyCancellable(this.cancellationToken)
+    : _completer = Completer() {
     // Call `maybeAttach()` to only attach if the cancellation token hasn't 
     // already been cancelled
     if (maybeAttach(this.cancellationToken)) {
@@ -157,19 +197,24 @@ class MyCancellable with Cancellable {
     }
   }
 
-  final CancellationToken cancellationToken;
+  final Completer _completer;
 
-  @override
-  void onCancel(Exception cancelException) {
-    super.onCancel(exception);
-    // Clean up resources here, like closing an HttpClient, and complete 
-    // any futures or streams 
-  }
+  Future<MyReturnType> get future => _completer.future;
   
   void complete() {
     // If your async task completes before the token is cancelled, 
-    // detatch from the token
+    // detatch from the token and complete any futures with the result
     detach();
+    _completer.complete(MyReturnType(...));
+  }
+
+  @override
+  void onCancel(Exception exception) {
+    super.onCancel(exception);
+    // Clean up resources here, like closing an HttpClient, and complete 
+    // any futures with the cancellation exception and stacktrace
+    _completer.completeError(exception, cancellationStackTrace)
+    
   }
 }
 ```
