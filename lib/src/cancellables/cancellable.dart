@@ -52,7 +52,15 @@ mixin Cancellable {
   final StackTrace cancellationStackTrace = StackTrace.current;
 
   /// Whether or not the operation has been cancelled.
-  bool get isCancelled => _isCancelled;
+  bool get isCancelled {
+    // When a sync CancellableCompleter's future is wrapped with another
+    // cancellable future (eg by using .asCancellable()), this getter may be
+    // called while the cancellation token is still iterating through the
+    // attached cancellables. To return an accurate result when onCancel()
+    // hasn't been called yet, the cancellation state should be determined by
+    // the currently attached token if there is one.
+    return _attachedToken?.isCancelled ?? _isCancelled;
+  }
 
   /// Attaches to the [CancellationToken] only if it hasn't already been
   /// cancelled. If the token has already been cancelled, onCancel is called

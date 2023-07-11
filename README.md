@@ -5,10 +5,10 @@ A Dart utility package for easy async task cancellation.
 
 ## Features
 
-* Cancel futures and clean-up resources (e.g. closing an HttpClient) when a widget is disposed in Flutter
-* Reuse a single CancellationToken for multiple tasks, and cancel them all with a single call to `.cancel()`
-* Cancel isolates with cancellableCompute
-* Create your own cancellables that use CancellationTokens with the Cancellable mixin
+* Cancel futures and clean-up resources (e.g. closing an HttpClient) when a widget is disposed in Flutter.
+* Reuse a single CancellationToken for multiple tasks, and cancel them all with a single call to `.cancel()`.
+* Cancel isolates with cancellableCompute.
+* Create your own cancellables that use CancellationTokens with the Cancellable mixin.
 
 
 ## Cancellation Tokens

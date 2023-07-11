@@ -11,7 +11,7 @@ class CancellableFuture<T> {
     FutureOr<T> future,
     CancellationToken? cancellationToken, {
     OnCancelCallback? onCancel,
-  }) : _completer = CancellableCompleter.sync(
+  }) : _completer = CancellableCompleter(
           cancellationToken,
           onCancel: onCancel,
         ) {

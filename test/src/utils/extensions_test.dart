@@ -45,6 +45,21 @@ void main() {
         token.cancel();
       });
 
+      test(
+          'completes with CancelledException if the original future uses a '
+          'sync CancellableCompleter with the same token', () {
+        final CancellationToken token = CancellationToken();
+        final CancellableCompleter syncCompleter =
+            CancellableCompleter.sync(token);
+
+        expect(
+          syncCompleter.future.asCancellable(token),
+          throwsA(isA<CancelledException>()),
+        );
+
+        token.cancel();
+      });
+
       test('detaches from the cancellation token after completing with a value',
           () async {
         final CancellationToken token = CancellationToken();

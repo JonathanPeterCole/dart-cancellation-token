@@ -1,3 +1,7 @@
+## 2.0.1
+
+* Fixed a `Bad state: Future already completed` exception that could occur when nesting cancellable futures.
+
 ## 2.0.0
 
 This release aims to make it easier to implement custom Cancellables and provide more useful information for debugging. 
